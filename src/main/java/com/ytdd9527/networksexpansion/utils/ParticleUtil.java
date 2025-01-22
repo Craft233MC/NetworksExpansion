@@ -1,5 +1,6 @@
 package com.ytdd9527.networksexpansion.utils;
 
+import io.github.sefiraat.networks.Networks;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
@@ -84,14 +85,14 @@ public class ParticleUtil {
                 lastTick = (int) (t / 50);
                 if (tick != lastTick) {
                     final List<Runnable> finalRunnableList = runnableList;
-                    plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, () -> finalRunnableList.forEach(Runnable::run), tick);
+                    Networks.getFoliaLib().getScheduler().runLaterAsync(wrappedTask -> finalRunnableList.forEach(Runnable::run), tick);
                     tick = lastTick;
                     runnableList = new ArrayList<>();
                 }
             }
             if (!runnableList.isEmpty()) {
                 final List<Runnable> finalRunnableList = runnableList;
-                plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, () -> finalRunnableList.forEach(Runnable::run), tick);
+                Networks.getFoliaLib().getScheduler().runLaterAsync(wrappedTask -> finalRunnableList.forEach(Runnable::run), tick);
             }
 
             time += interval;
@@ -121,7 +122,7 @@ public class ParticleUtil {
                     world.spawnParticle(particle, x + BLOCK_CUBE_OFFSET_X[i], y + BLOCK_CUBE_OFFSET_Y[i], z + BLOCK_CUBE_OFFSET_Z[i], 1, 0, 0, 0, 0);
                 }
             } else {
-                plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, () -> {
+                Networks.getFoliaLib().getScheduler().runLaterAsync(wrappedTask -> {
                     for (int i = 0; i < BLOCK_CUBE_OFFSET_X.length; i++) {
                         world.spawnParticle(particle, x + BLOCK_CUBE_OFFSET_X[i], y + BLOCK_CUBE_OFFSET_Y[i], z + BLOCK_CUBE_OFFSET_Z[i], 1, 0, 0, 0, 0);
                     }

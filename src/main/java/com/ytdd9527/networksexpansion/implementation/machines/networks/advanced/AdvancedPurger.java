@@ -35,7 +35,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -103,12 +102,15 @@ public class AdvancedPurger extends NetworkObject implements RecipeDisplayItem {
 
     private void performKillItemOperationAsync(@Nullable BlockMenu blockMenu) {
         if (blockMenu != null) {
-            new BukkitRunnable() {
+            Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
                     tryKillItem(blockMenu);
                 }
-            }.runTaskAsynchronously(Networks.getInstance());
+            };
+            Networks.getFoliaLib().getScheduler().runAtLocation(
+                    blockMenu.getLocation(), wrappedTask -> runnable.run()
+            );
         }
     }
 

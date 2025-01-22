@@ -6,7 +6,6 @@ import io.github.sefiraat.networks.Networks;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -34,7 +33,7 @@ public class DataStorage {
     }
 
     public static void restoreFromLocation(Location l, Consumer<Optional<StorageUnitData>> usage) {
-        new BukkitRunnable() {
+        Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 int id = dataSource.getIdFromLocation(l);
@@ -47,7 +46,9 @@ public class DataStorage {
                 }
                 usage.accept(getCachedStorageData(id));
             }
-        }.runTaskAsynchronously(Networks.getInstance());
+        };
+        Networks.getFoliaLib().getScheduler().runAtLocation(
+                l, wrappedTask -> {runnable.run();});
     }
 
     @Nonnull

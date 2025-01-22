@@ -161,7 +161,7 @@ public class CraftItemGroup extends FlexItemGroup {
                     chestMenu.addMenuClickHandler(MAIN_CONTENT[i], (p, slot, item, action) -> {
                         RecipeItemGroup recipeItemGroup = RecipeItemGroup.getByItemStack(player, playerProfile, slimefunGuideMode, slimefunItem.getItem());
                         if (recipeItemGroup != null) {
-                            Bukkit.getScheduler().runTask(JAVA_PLUGIN, () -> recipeItemGroup.open(player, playerProfile, slimefunGuideMode));
+                            Networks.getFoliaLib().getScheduler().runAtEntity(player,wrappedTask  -> recipeItemGroup.open(player, playerProfile, slimefunGuideMode));
                         }
                         return false;
                     });

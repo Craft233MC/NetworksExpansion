@@ -12,7 +12,6 @@ import lombok.ToString;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
 import java.util.EnumSet;
@@ -123,7 +122,7 @@ public class NetworkNode {
         var sfItem = StorageCacheUtils.getSfItem(location);
         if (sfItem != null) {
             Slimefun.getDatabaseManager().getBlockDataController().removeBlock(location);
-            BukkitRunnable runnable = new BukkitRunnable() {
+            Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
                     //fix #99
@@ -132,7 +131,7 @@ public class NetworkNode {
                     location.getBlock().setType(Material.AIR);
                 }
             };
-            runnable.runTask(Networks.getInstance());
+            Networks.getFoliaLib().getScheduler().runAtLocation(location, wrappedTask -> runnable.run());
             NetworkController.wipeNetwork(location);
         }
     }

@@ -1,6 +1,8 @@
 package io.github.sefiraat.networks;
 
 import com.balugaq.netex.api.enums.MinecraftVersion;
+import com.tcoded.folialib.FoliaLib;
+import com.tcoded.folialib.wrapper.task.WrappedTask;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
 import com.ytdd9527.networksexpansion.core.managers.ConfigManager;
@@ -27,7 +29,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.yaml.snakeyaml.error.YAMLException;
 
 import javax.annotation.Nonnull;
@@ -46,7 +47,7 @@ public class Networks extends JavaPlugin implements SlimefunAddon {
     private static Networks instance;
     private static DataSource dataSource;
     private static QueryQueue queryQueue;
-    private static BukkitRunnable autoSaveThread;
+    private static Runnable autoSaveThread;
     private static MinecraftVersion minecraftVersion = MinecraftVersion.UNKNOWN;
     private final String username;
     private final String repo;
@@ -56,6 +57,8 @@ public class Networks extends JavaPlugin implements SlimefunAddon {
     private SupportedPluginManager supportedPluginManager;
     private LocalizationService localizationService;
     private long slimefunTickCount;
+    private static FoliaLib foliaLib;
+    private WrappedTask autoSaveThreadTask;
 
 
     public Networks() {
@@ -76,7 +79,7 @@ public class Networks extends JavaPlugin implements SlimefunAddon {
         return dataSource;
     }
 
-    public static BukkitRunnable getAutoSaveThread() {
+    public static Runnable getAutoSaveThread() {
         return autoSaveThread;
     }
 
@@ -108,6 +111,7 @@ public class Networks extends JavaPlugin implements SlimefunAddon {
     @Override
     public void onEnable() {
         instance = this;
+        foliaLib = new FoliaLib(this);
 
         getLogger().info("Loading language");
         this.configManager = new ConfigManager();
@@ -149,7 +153,7 @@ public class Networks extends JavaPlugin implements SlimefunAddon {
         queryQueue.startThread();
 
         getLogger().info(getLocalizationService().getString("messages.startup.creating-auto-save-thread"));
-        autoSaveThread = new BukkitRunnable() {
+        autoSaveThread = new Runnable() {
             @Override
             public void run() {
                 DataStorage.saveAmountChange();
@@ -158,7 +162,7 @@ public class Networks extends JavaPlugin implements SlimefunAddon {
         int seconds = getConfig().getInt("drawer-auto-save-period");
         seconds = seconds <= 0 ? 300 : seconds;
         long period = 20L * seconds;
-        autoSaveThread.runTaskTimerAsynchronously(this, 2 * period, period);
+        this.autoSaveThreadTask = getFoliaLib().getScheduler().runTimerAsync(autoSaveThread, 2 * period, period);
 
         getLogger().info(getLocalizationService().getString("messages.startup.registering-items"));
         SetupUtil.setupAll();
@@ -170,18 +174,11 @@ public class Networks extends JavaPlugin implements SlimefunAddon {
 
         setupMetrics();
 
-        Bukkit.getScheduler()
-                .runTaskTimer(
-                        this,
-                        () -> slimefunTickCount++,
-                        1,
-                        Slimefun.getTickerTask().getTickRate());
+        getFoliaLib().getScheduler().runTimer(
+                () -> slimefunTickCount++, 1, Slimefun.getTickerTask().getTickRate());
 
         // Fix dupe bug which break the network controller data without player interaction
-        Bukkit.getScheduler()
-                .runTaskTimer(
-                        this,
-                        () -> {
+        getFoliaLib().getScheduler().runTimer(() -> {
                             Set<Location> wrongs = new HashSet<>();
                             Set<Location> controllers = NetworkController.getNetworks().keySet();
                             for (Location controller : controllers) {
@@ -208,7 +205,7 @@ public class Networks extends JavaPlugin implements SlimefunAddon {
         this.configManager.saveAll();
         getLogger().info(getLocalizationService().getString("messages.shutdown.disconnecting-database"));
         if (autoSaveThread != null) {
-            autoSaveThread.cancel();
+            getFoliaLib().getScheduler().cancelTask(autoSaveThreadTask);
         }
         DataStorage.saveAmountChange();
         if (queryQueue != null) {
@@ -318,5 +315,9 @@ public class Networks extends JavaPlugin implements SlimefunAddon {
         if (getConfigManager().isDebug()) {
             getLogger().warning("[DEBUG] " + message);
         }
+    }
+
+    public static FoliaLib getFoliaLib() {
+        return foliaLib;
     }
 }

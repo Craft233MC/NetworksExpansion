@@ -39,7 +39,7 @@ public abstract class SpecialSlimefunItem extends SlimefunItem {
         if (this instanceof RecipeItem recipeItem) {
             int delay = recipeItem.getRegisterRecipeDelay();
             if (delay > 0) {
-                this.getAddon().getJavaPlugin().getServer().getScheduler().runTaskLater((Plugin) addon, () -> {
+                Networks.getFoliaLib().getScheduler().runLater( wrappedTask -> {
                     (recipeItem).registerDefaultRecipes();
                     MachineRecipeFactory.getInstance().initAdvancedRecipeMap(this.getId());
                 }, delay);

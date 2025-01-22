@@ -43,9 +43,9 @@ public class SupportedPluginManager {
 
         this.wildStacker = Bukkit.getPluginManager().isPluginEnabled("WildStacker");
         Networks.getInstance()
-                .getServer()
+                .getFoliaLib()
                 .getScheduler()
-                .runTaskLater(Networks.getInstance(), this::firstTickRegistrations, 1);
+                .runLater(this::firstTickRegistrations, 1);
     }
 
     public static int getStackAmount(Item item) {

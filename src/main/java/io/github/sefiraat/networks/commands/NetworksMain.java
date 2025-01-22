@@ -77,7 +77,7 @@ public class NetworksMain implements TabExecutor {
     private static final Map<UUID, Pair<Location, Location>> SELECTED_POS = new HashMap<>();
 
     public NetworksMain() {
-        javaPlugin.getServer().getScheduler().runTaskTimerAsynchronously(javaPlugin, () -> {
+        Networks.getFoliaLib().getScheduler().runTimerAsync(() -> {
             Iterator<UUID> iterator = requesters.iterator();
             while (iterator.hasNext()) {
                 UUID uuid = iterator.next();
@@ -142,7 +142,7 @@ public class NetworksMain implements TabExecutor {
             return;
         }
 
-        javaPlugin.getServer().getScheduler().runTaskLaterAsynchronously(javaPlugin, () -> ParticleUtil.drawRegionOutline(javaPlugin, Particle.WAX_OFF, 0, pos1, pos2), Slimefun.getTickerTask().getTickRate());
+        Networks.getFoliaLib().getScheduler().runLaterAsync(wrappedTask -> ParticleUtil.drawRegionOutline(javaPlugin, Particle.WAX_OFF, 0, pos1, pos2), Slimefun.getTickerTask().getTickRate());
     }
 
     @Deprecated
@@ -452,7 +452,7 @@ public class NetworksMain implements TabExecutor {
 
         final Map<ChunkPosition, Set<Location>> tickingBlocks = Slimefun.getTickerTask().getLocations();
 
-        Bukkit.getScheduler().runTask(Networks.getInstance(), () -> {
+        Networks.getFoliaLib().getScheduler().runNextTick(wrappedTask -> {
             doWorldEdit(getPos1(player), getPos2(player), (fromLocation -> {
                 final Block fromBlock = fromLocation.getBlock();
                 final Block toBlock = playerLocation.getWorld().getBlockAt(fromLocation.getBlockX() + dx, fromLocation.getBlockY() + dy, fromLocation.getBlockZ() + dz);

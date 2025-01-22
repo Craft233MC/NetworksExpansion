@@ -1,7 +1,6 @@
 package com.ytdd9527.networksexpansion.utils.databases;
 
 import io.github.sefiraat.networks.Networks;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -34,8 +33,8 @@ public class QueryQueue {
 
     public void startThread() {
         if (!threadStarted) {
-            getProcessor(queryTasks).runTaskAsynchronously(Networks.getInstance());
-            getProcessor(updateTasks).runTaskAsynchronously(Networks.getInstance());
+            getProcessor(queryTasks);
+            getProcessor(updateTasks);
             threadStarted = true;
         }
     }
@@ -64,22 +63,20 @@ public class QueryQueue {
         updateTasks.offer(abortTask);
     }
 
-    private BukkitRunnable getProcessor(BlockingQueue<QueuedTask> queue) {
-        return new BukkitRunnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        QueuedTask task = queue.take();
-                        if (task.execute() && task.callback()) {
-                            break;
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
+    private void getProcessor(BlockingQueue<QueuedTask> queue) {
+        Runnable runnable = () -> {
+            while (true) {
+                try {
+                    QueuedTask task = queue.take();
+                    if (task.execute() && task.callback()) {
+                        break;
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         };
+        Networks.getFoliaLib().getScheduler().runAsync(wrappedTask -> runnable.run());
     }
 
 }

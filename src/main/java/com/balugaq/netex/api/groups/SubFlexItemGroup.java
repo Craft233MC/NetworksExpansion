@@ -217,7 +217,7 @@ public class SubFlexItemGroup extends FlexItemGroup {
                         chestMenu.addMenuClickHandler(MAIN_CONTENT_L[i][j], (p, slot, item, action) -> {
                             RecipeItemGroup recipeItemGroup = RecipeItemGroup.getByItemStack(player, playerProfile, slimefunGuideMode, slimefunItem.getItem());
                             if (recipeItemGroup != null) {
-                                Bukkit.getScheduler().runTask(JAVA_PLUGIN, () -> recipeItemGroup.open(player, playerProfile, slimefunGuideMode));
+                                Networks.getFoliaLib().getScheduler().runAtLocation(player.getLocation(), wrappedTask -> recipeItemGroup.open(player, playerProfile, slimefunGuideMode));
                             }
                             return false;
                         });
