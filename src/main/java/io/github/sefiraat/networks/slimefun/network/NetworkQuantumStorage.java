@@ -342,7 +342,7 @@ public class NetworkQuantumStorage extends SpecialSlimefunItem implements Distin
         syncBlock(blockMenu.getLocation(), cache);
         CACHES.put(blockMenu.getLocation(), cache);
 
-        player.sendMessage(String.format(Networks.getLocalizationService().getString("messages.completed-operation.changed_custom_max_amount"), newMaxAmount));
+        player.sendMessage(String.format(Networks.getLocalizationService().getString("messages.completed-operation.quantum_storage.changed_custom_max_amount"), newMaxAmount));
     }
 
     public void setSupportsCustomMaxAmount(boolean supportsCustomMaxAmount) {
