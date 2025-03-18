@@ -1045,4 +1045,10 @@ public class ExpansionRecipes {
             NETWORK_BRIDGE.getItem(), ExpansionItemStacks.NETWORK_GRID_NEW_STYLE, NETWORK_BRIDGE.getItem(),
             NETWORK_BRIDGE.getItem(), NETWORK_CRAFTING_GRID.getItem(), NETWORK_BRIDGE.getItem()
     };
+
+    public static final ItemStack[] STATUS_VIEWER = new ItemStack[]{
+            NETWORK_BRIDGE.getItem(), OPTIC_CABLE.getItem(), NETWORK_BRIDGE.getItem(),
+            NETWORK_BRIDGE.getItem(), NETWORK_GRID.getItem(), NETWORK_BRIDGE.getItem(),
+            NETWORK_BRIDGE.getItem(), OPTIC_CABLE.getItem(), NETWORK_BRIDGE.getItem()
+    };
 }

@@ -1,6 +1,7 @@
 package com.ytdd9527.networksexpansion.implementation.machines.manual;
 
 import com.balugaq.netex.api.data.StorageUnitData;
+import com.balugaq.netex.api.enums.FeedbackType;
 import com.balugaq.netex.api.enums.StorageUnitType;
 import com.balugaq.netex.api.helpers.Icon;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
@@ -150,6 +151,7 @@ public class StorageUnitUpgradeTable extends SpecialSlimefunItem implements Admi
                 for (int slot : inputSlots) {
                     menu.consumeItem(slot);
                 }
+                sendFeedback(menu.getLocation(), FeedbackType.SUCCESS);
 
                 return;
             }

@@ -1,5 +1,6 @@
 package com.ytdd9527.networksexpansion.implementation.machines.networks.advanced;
 
+import com.balugaq.netex.api.enums.FeedbackType;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
 import com.ytdd9527.networksexpansion.core.items.SpecialSlimefunItem;
@@ -87,8 +88,10 @@ public class SmartGrabber extends SpecialSlimefunItem implements AdminDebuggable
                         } else if (block.getBlockData() instanceof Directional directional) {
                             final BlockFace bridgeFace = directional.getFacing();
                             setDirection(location, bridgeFace);
+                            sendFeedback(block.getLocation(), FeedbackType.INITIALIZATION);
                         } else {
                             Slimefun.getDatabaseManager().getBlockDataController().removeBlock(location);
+                            sendFeedback(block.getLocation(), FeedbackType.INVALID_BLOCK);
                         }
                     }
                 },
@@ -141,6 +144,9 @@ public class SmartGrabber extends SpecialSlimefunItem implements AdminDebuggable
                     }
                 }
             }
+            sendFeedback(thisBlock.getLocation(), FeedbackType.WORKING);
+        } else {
+            sendFeedback(thisBlock.getLocation(), FeedbackType.NO_NETWORK_FOUND);
         }
     }
 

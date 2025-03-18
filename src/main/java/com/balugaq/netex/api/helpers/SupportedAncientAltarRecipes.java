@@ -30,7 +30,7 @@ public final class SupportedAncientAltarRecipes implements HasRecipes, CanTestRe
                     if (itemStack == null) {
                         itemStacks[i] = null;
                     } else {
-                        itemStacks[i] = ItemStackUtil.getCleanItem(itemStack);
+                        itemStacks[i] = new ItemStack(itemStack.clone());
                     }
                     if (++i >= 9) {
                         break;

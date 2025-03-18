@@ -1,5 +1,6 @@
 package io.github.sefiraat.networks.slimefun.network.pusher;
 
+import com.balugaq.netex.api.enums.FeedbackType;
 import com.balugaq.netex.api.helpers.Icon;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
 import io.github.sefiraat.networks.NetworkStorage;
@@ -50,6 +51,7 @@ public abstract class AbstractNetworkPusher extends NetworkDirectional {
         final NodeDefinition definition = NetworkStorage.getNode(blockMenu.getLocation());
 
         if (definition == null || definition.getNode() == null) {
+            sendFeedback(blockMenu.getLocation(), FeedbackType.NO_NETWORK_FOUND);
             return;
         }
 
@@ -57,6 +59,7 @@ public abstract class AbstractNetworkPusher extends NetworkDirectional {
         final BlockMenu targetMenu = StorageCacheUtils.getMenu(blockMenu.getBlock().getRelative(direction).getLocation());
 
         if (targetMenu == null) {
+            sendFeedback(blockMenu.getLocation(), FeedbackType.NO_TARGET_BLOCK);
             return;
         }
 
@@ -88,9 +91,12 @@ public abstract class AbstractNetworkPusher extends NetworkDirectional {
                 ItemStack retrieved = definition.getNode().getRoot().getItemStack(itemRequest);
                 if (retrieved != null) {
                     targetMenu.pushItem(retrieved, slots);
+                    sendFeedback(blockMenu.getLocation(), FeedbackType.WORKING);
                     if (definition.getNode().getRoot().isDisplayParticles()) {
                         showParticle(blockMenu.getLocation(), direction);
                     }
+                } else {
+                    sendFeedback(blockMenu.getLocation(), FeedbackType.NO_ITEM_FOUND);
                 }
                 break;
             }

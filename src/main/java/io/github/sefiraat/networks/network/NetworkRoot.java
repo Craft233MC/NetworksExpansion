@@ -2,6 +2,8 @@ package io.github.sefiraat.networks.network;
 
 import com.balugaq.netex.api.data.ItemContainer;
 import com.balugaq.netex.api.data.StorageUnitData;
+import com.balugaq.netex.api.enums.StorageType;
+import com.balugaq.netex.api.events.NetworkRootLocateStorageEvent;
 import com.balugaq.netex.utils.BlockMenuUtil;
 import com.balugaq.netex.utils.NetworksVersionedParticle;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
@@ -27,6 +29,7 @@ import io.ncbpfluffybear.fluffymachines.items.Barrel;
 import lombok.Getter;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import me.mrCookieSlime.Slimefun.api.item_transport.ItemTransportFlow;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -117,16 +120,26 @@ public class NetworkRoot extends NetworkNode {
     private final Set<Location> outputOnlyMonitors = ConcurrentHashMap.newKeySet();
     @Getter
     private Location controller = null;
+    @Deprecated
     private boolean progressing = false;
     @Getter
     private int maxNodes;
+    @Getter
     private boolean isOverburdened = false;
+    @Deprecated
+    @Getter
     private Set<BarrelIdentity> barrels = null;
+    @Getter
     private Set<BarrelIdentity> inputAbleBarrels = null;
+    @Getter
     private Set<BarrelIdentity> outputAbleBarrels = null;
 
+    @Deprecated
+    @Getter
     private Map<StorageUnitData, Location> cargoStorageUnitDatas = null;
+    @Getter
     private Map<StorageUnitData, Location> inputAbleCargoStorageUnitDatas = null;
+    @Getter
     private Map<StorageUnitData, Location> outputAbleCargoStorageUnitDatas = null;
 
     @Getter
@@ -517,6 +530,7 @@ public class NetworkRoot extends NetworkNode {
         return itemStacks;
     }
 
+    @Deprecated
     @Nonnull
     public Set<BarrelIdentity> getBarrels() {
 
@@ -578,9 +592,12 @@ public class NetworkRoot extends NetworkNode {
         }
 
         this.barrels = barrelSet;
+        NetworkRootLocateStorageEvent event = new NetworkRootLocateStorageEvent(this, StorageType.BARREL, true, true, Bukkit.isPrimaryThread());
+        Bukkit.getPluginManager().callEvent(event);
         return barrelSet;
     }
 
+    @Deprecated
     @Nonnull
     public Map<StorageUnitData, Location> getCargoStorageUnitDatas() {
         if (this.cargoStorageUnitDatas != null) {
@@ -616,6 +633,8 @@ public class NetworkRoot extends NetworkNode {
         }
 
         this.cargoStorageUnitDatas = dataSet;
+        NetworkRootLocateStorageEvent event = new NetworkRootLocateStorageEvent(this, StorageType.DRAWER, true, true, Bukkit.isPrimaryThread());
+        Bukkit.getPluginManager().callEvent(event);
         return dataSet;
     }
 
@@ -1399,6 +1418,8 @@ public class NetworkRoot extends NetworkNode {
         }
 
         this.inputAbleBarrels = barrelSet;
+        NetworkRootLocateStorageEvent event = new NetworkRootLocateStorageEvent(this, StorageType.BARREL, true, false, Bukkit.isPrimaryThread());
+        Bukkit.getPluginManager().callEvent(event);
         return barrelSet;
     }
 
@@ -1467,6 +1488,8 @@ public class NetworkRoot extends NetworkNode {
         }
 
         this.outputAbleBarrels = barrelSet;
+        NetworkRootLocateStorageEvent event = new NetworkRootLocateStorageEvent(this, StorageType.BARREL, false, true, Bukkit.isPrimaryThread());
+        Bukkit.getPluginManager().callEvent(event);
         return barrelSet;
     }
 
@@ -1508,6 +1531,8 @@ public class NetworkRoot extends NetworkNode {
         }
 
         this.inputAbleCargoStorageUnitDatas = dataSet;
+        NetworkRootLocateStorageEvent event = new NetworkRootLocateStorageEvent(this, StorageType.DRAWER, true, false, Bukkit.isPrimaryThread());
+        Bukkit.getPluginManager().callEvent(event);
         return dataSet;
     }
 
@@ -1549,6 +1574,8 @@ public class NetworkRoot extends NetworkNode {
         }
 
         this.outputAbleCargoStorageUnitDatas = dataSet;
+        NetworkRootLocateStorageEvent event = new NetworkRootLocateStorageEvent(this, StorageType.DRAWER, false, true, Bukkit.isPrimaryThread());
+        Bukkit.getPluginManager().callEvent(event);
         return dataSet;
     }
 

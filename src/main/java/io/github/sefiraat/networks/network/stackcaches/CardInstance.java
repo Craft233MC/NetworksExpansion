@@ -1,6 +1,6 @@
 package io.github.sefiraat.networks.network.stackcaches;
 
-import com.balugaq.netex.api.helpers.ItemStackHelper;
+import net.guizhanss.guizhanlib.minecraft.helper.inventory.ItemStackHelper;
 import io.github.sefiraat.networks.Networks;
 import io.github.sefiraat.networks.utils.Theme;
 import lombok.Getter;

@@ -1,5 +1,6 @@
 package io.github.sefiraat.networks.slimefun.network;
 
+import com.balugaq.netex.api.enums.FeedbackType;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
 import dev.sefiraat.sefilib.misc.ParticleUtils;
 import io.github.sefiraat.networks.NetworkStorage;
@@ -94,6 +95,7 @@ public class NetworkVacuum extends NetworkObject {
                         .getNearbyEntities(location, range, range, range, Item.class::isInstance);
                 Optional<Entity> optionalEntity = items.stream().findFirst();
                 if (optionalEntity.isEmpty() || !(optionalEntity.get() instanceof Item item)) {
+                    sendFeedback(blockMenu.getLocation(), FeedbackType.NO_ITEM_FOUND);
                     return;
                 }
                 if (item.getPickupDelay() <= 0 && !SlimefunUtils.hasNoPickupFlag(item)) {
@@ -113,12 +115,14 @@ public class NetworkVacuum extends NetworkObject {
                 return;
             }
         }
+        sendFeedback(blockMenu.getLocation(), FeedbackType.WORKING);
     }
 
     private void tryAddItem(@Nonnull BlockMenu blockMenu) {
         final NodeDefinition definition = NetworkStorage.getNode(blockMenu.getLocation());
 
         if (definition.getNode() == null) {
+            sendFeedback(blockMenu.getLocation(), FeedbackType.NO_NETWORK_FOUND);
             return;
         }
 
@@ -130,6 +134,7 @@ public class NetworkVacuum extends NetworkObject {
             }
             definition.getNode().getRoot().addItemStack(itemStack);
         }
+        sendFeedback(blockMenu.getLocation(), FeedbackType.WORKING);
     }
 
     @Override

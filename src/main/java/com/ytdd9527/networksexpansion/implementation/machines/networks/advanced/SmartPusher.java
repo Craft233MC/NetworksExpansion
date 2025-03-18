@@ -1,5 +1,6 @@
 package com.ytdd9527.networksexpansion.implementation.machines.networks.advanced;
 
+import com.balugaq.netex.api.enums.FeedbackType;
 import com.balugaq.netex.utils.BlockMenuUtil;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
@@ -90,12 +91,16 @@ public class SmartPusher extends SpecialSlimefunItem implements AdminDebuggable 
                             final BlockMenu blockMenu = slimefunBlockData.getBlockMenu();
                             if (blockMenu != null) {
                                 onTick(blockMenu, cachedFace);
+                            } else {
+                                sendFeedback(location, FeedbackType.INVALID_BLOCK);
                             }
                         } else if (block.getBlockData() instanceof Directional directional) {
                             final BlockFace face = directional.getFacing();
                             setDirection(location, face);
+                            sendFeedback(block.getLocation(), FeedbackType.INITIALIZATION);
                         } else {
                             Slimefun.getDatabaseManager().getBlockDataController().removeBlock(location);
+                            sendFeedback(block.getLocation(), FeedbackType.INVALID_BLOCK);
                         }
                     }
                 },
@@ -200,7 +205,12 @@ public class SmartPusher extends SpecialSlimefunItem implements AdminDebuggable 
                         }
                     }
                 }
+                sendFeedback(blockMenu.getLocation(), FeedbackType.WORKING);
+            } else {
+                sendFeedback(blockMenu.getLocation(), FeedbackType.NO_TARGET_BLOCK);
             }
+        } else {
+            sendFeedback(blockMenu.getLocation(), FeedbackType.NO_NETWORK_FOUND);
         }
     }
 

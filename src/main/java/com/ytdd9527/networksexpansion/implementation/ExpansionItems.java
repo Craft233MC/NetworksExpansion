@@ -96,6 +96,7 @@ import com.ytdd9527.networksexpansion.implementation.tools.DueMachineConfigurato
 import com.ytdd9527.networksexpansion.implementation.tools.ItemMover;
 import com.ytdd9527.networksexpansion.implementation.tools.NetworksExpansionWorldEditAxe;
 import com.ytdd9527.networksexpansion.implementation.tools.NetworksInfoTool;
+import com.ytdd9527.networksexpansion.implementation.tools.StatusViewer;
 import io.github.sefiraat.networks.slimefun.network.NetworkBridge;
 import io.github.sefiraat.networks.slimefun.network.NetworkPowerNode;
 import io.github.sefiraat.networks.slimefun.network.NetworkQuantumStorage;
@@ -1550,5 +1551,12 @@ public class ExpansionItems {
             ExpansionItemStacks.NETWORK_CRAFTING_GRID_NEW_STYLE,
             ExpansionWorkbench.TYPE,
             ExpansionRecipes.NETWORK_CRAFTING_GRID_NEW_STYLE
+    );
+
+    public static final StatusViewer STATUS_VIEWER = new StatusViewer(
+            ExpansionItemsMenus.MENU_ITEMS,
+            ExpansionItemStacks.STATUS_VIEWER,
+            ExpansionWorkbench.TYPE,
+            ExpansionRecipes.STATUS_VIEWER
     );
 }

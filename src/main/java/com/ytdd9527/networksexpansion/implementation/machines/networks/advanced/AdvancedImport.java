@@ -1,5 +1,6 @@
 package com.ytdd9527.networksexpansion.implementation.machines.networks.advanced;
 
+import com.balugaq.netex.api.enums.FeedbackType;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
 import com.ytdd9527.networksexpansion.implementation.ExpansionItems;
 import io.github.sefiraat.networks.NetworkStorage;
@@ -96,6 +97,7 @@ public class AdvancedImport extends NetworkObject implements RecipeDisplayItem {
             }
             root.addItemStack(itemStack);
         }
+        sendFeedback(blockMenu.getLocation(), FeedbackType.WORKING);
     }
 
     @Override

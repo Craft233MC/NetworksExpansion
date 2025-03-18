@@ -1,7 +1,7 @@
 package com.ytdd9527.networksexpansion.implementation.machines.networks.advanced;
 
 import com.balugaq.netex.api.helpers.Icon;
-import com.balugaq.netex.api.helpers.ItemStackHelper;
+import net.guizhanss.guizhanlib.minecraft.helper.inventory.ItemStackHelper;
 import com.balugaq.netex.api.helpers.SupportedCraftingTableRecipes;
 import com.balugaq.netex.utils.BlockMenuUtil;
 import com.ytdd9527.networksexpansion.core.items.machines.AbstractGridNewStyle;
