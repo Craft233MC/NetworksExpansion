@@ -1,5 +1,6 @@
 package com.ytdd9527.networksexpansion.implementation.machines.cargo.power.power_outlet.line;
 
+import com.balugaq.netex.api.enums.FeedbackType;
 import com.balugaq.netex.api.interfaces.Configurable;
 import com.balugaq.netex.utils.LineOperationUtil;
 import io.github.sefiraat.networks.NetworkStorage;
@@ -47,6 +48,7 @@ public class LinePowerOutlet extends NetworkDirectional implements Configurable 
     public void onTick(@Nullable BlockMenu blockMenu, @Nonnull Block b) {
         super.onTick(blockMenu, b);
         if (blockMenu == null) {
+            sendFeedback(b.getLocation(), FeedbackType.INVALID_BLOCK);
             return;
         }
 
@@ -57,6 +59,7 @@ public class LinePowerOutlet extends NetworkDirectional implements Configurable 
         final NodeDefinition definition = NetworkStorage.getNode(blockMenu.getLocation());
 
         if (definition == null || definition.getNode() == null) {
+            sendFeedback(blockMenu.getLocation(), FeedbackType.NO_NETWORK_FOUND);
             return;
         }
 

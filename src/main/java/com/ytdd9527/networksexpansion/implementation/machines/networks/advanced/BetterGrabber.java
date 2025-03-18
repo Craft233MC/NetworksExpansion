@@ -1,5 +1,6 @@
 package com.ytdd9527.networksexpansion.implementation.machines.networks.advanced;
 
+import com.balugaq.netex.api.enums.FeedbackType;
 import com.balugaq.netex.api.helpers.Icon;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
 import io.github.sefiraat.networks.NetworkStorage;
@@ -57,6 +58,7 @@ public class BetterGrabber extends NetworkDirectional {
         final NodeDefinition definition = NetworkStorage.getNode(blockMenu.getLocation());
 
         if (definition == null || definition.getNode() == null) {
+            sendFeedback(blockMenu.getLocation(), FeedbackType.NO_NETWORK_FOUND);
             return;
         }
 
@@ -64,6 +66,7 @@ public class BetterGrabber extends NetworkDirectional {
         final BlockMenu targetMenu = StorageCacheUtils.getMenu(blockMenu.getBlock().getRelative(direction).getLocation());
 
         if (targetMenu == null) {
+            sendFeedback(blockMenu.getLocation(), FeedbackType.NO_TARGET_BLOCK);
             return;
         }
 
@@ -97,6 +100,8 @@ public class BetterGrabber extends NetworkDirectional {
                 }
             }
         }
+
+        sendFeedback(blockMenu.getLocation(), FeedbackType.WORKING);
     }
 
     @Override

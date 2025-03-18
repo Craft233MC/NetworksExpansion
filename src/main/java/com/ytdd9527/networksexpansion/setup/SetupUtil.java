@@ -17,7 +17,8 @@ public class SetupUtil {
                 ExpansionItems.WORLDEDIT_AXE.registerThis(),
                 ExpansionItems.INFO_TOOL.registerThis(),
                 ExpansionItems.DUE_MACHINE_CONFIGURATOR.registerThis(),
-                ExpansionItems.ITEM_MOVER.registerThis()
+                ExpansionItems.ITEM_MOVER.registerThis(),
+                ExpansionItems.STATUS_VIEWER.registerThis()
         );
         ExpansionItemsMenus.SUB_MENU_BLUEPRINT.addTo(
                 ExpansionItems.MAGIC_WORKBENCH_BLUEPRINT.registerThis(),

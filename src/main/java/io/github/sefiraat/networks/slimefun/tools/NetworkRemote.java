@@ -3,11 +3,13 @@ package io.github.sefiraat.networks.slimefun.tools;
 import com.jeff_media.morepersistentdatatypes.DataType;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
+import com.ytdd9527.networksexpansion.core.items.SpecialSlimefunItem;
 import com.ytdd9527.networksexpansion.implementation.machines.networks.advanced.NetworkGridNewStyle;
 import io.github.sefiraat.networks.Networks;
 import io.github.sefiraat.networks.slimefun.network.grid.NetworkCraftingGrid;
 import io.github.sefiraat.networks.slimefun.network.grid.NetworkGrid;
 import io.github.sefiraat.networks.utils.Keys;
+import io.github.sefiraat.networks.utils.Theme;
 import io.github.sefiraat.networks.utils.datatypes.DataTypeMethods;
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
@@ -29,7 +31,7 @@ import javax.annotation.Nonnull;
 import java.util.Optional;
 
 @Getter
-public class NetworkRemote extends SlimefunItem {
+public class NetworkRemote extends SpecialSlimefunItem {
 
     private static final String WIKI_PAGE = "tools/network-remote";
 
@@ -114,6 +116,7 @@ public class NetworkRemote extends SlimefunItem {
     public static void openGrid(@Nonnull Location location, @Nonnull Player player) {
         SlimefunBlockData blockData = StorageCacheUtils.getBlock(location);
         if (blockData == null) {
+            player.sendMessage(Theme.ERROR + "无法找到绑定的网格");
             return;
         }
 

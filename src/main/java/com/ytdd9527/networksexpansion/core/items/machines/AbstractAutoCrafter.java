@@ -1,5 +1,6 @@
 package com.ytdd9527.networksexpansion.core.items.machines;
 
+import com.balugaq.netex.api.enums.FeedbackType;
 import com.balugaq.netex.api.helpers.Icon;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
 import io.github.sefiraat.networks.NetworkStorage;
@@ -23,6 +24,7 @@ import me.mrCookieSlime.Slimefun.Objects.handlers.BlockTicker;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenuPreset;
 import me.mrCookieSlime.Slimefun.api.item_transport.ItemTransportFlow;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -93,6 +95,7 @@ public abstract class AbstractAutoCrafter extends NetworkObject {
 
         if (definition == null || definition.getNode() == null) {
             sendDebugMessage(blockMenu.getLocation(), "No network found");
+            sendFeedback(blockMenu.getLocation(), FeedbackType.NO_NETWORK_FOUND);
             return;
         }
 
@@ -109,6 +112,7 @@ public abstract class AbstractAutoCrafter extends NetworkObject {
 
         if (blueprint == null || blueprint.getType() == Material.AIR) {
             sendDebugMessage(blockMenu.getLocation(), "No blueprint found");
+            sendFeedback(blockMenu.getLocation(), FeedbackType.NO_BLUEPRINT_FOUND);
             return;
         }
 
@@ -119,6 +123,7 @@ public abstract class AbstractAutoCrafter extends NetworkObject {
 
             if (!isValidBlueprint(item)) {
                 sendDebugMessage(blockMenu.getLocation(), "Invalid blueprint");
+                sendFeedback(blockMenu.getLocation(), FeedbackType.INVALID_BLUEPRINT);
                 return;
             }
 
@@ -139,6 +144,7 @@ public abstract class AbstractAutoCrafter extends NetworkObject {
 
                 if (optional.isEmpty()) {
                     sendDebugMessage(blockMenu.getLocation(), "No blueprint instance found");
+                    sendFeedback(blockMenu.getLocation(), FeedbackType.NO_BLUEPRINT_INSTANCE_FOUND);
                     return;
                 }
 
@@ -152,12 +158,15 @@ public abstract class AbstractAutoCrafter extends NetworkObject {
                     && output.getType() != Material.AIR
                     && (output.getAmount() + instance.getItemStack().getAmount() > output.getMaxStackSize() || !StackUtils.itemsMatch(instance, output))) {
                 sendDebugMessage(blockMenu.getLocation(), "Output slot is full");
+                sendFeedback(blockMenu.getLocation(), FeedbackType.OUTPUT_FULL);
                 return;
             }
 
             if (tryCraft(blockMenu, instance, root)) {
                 root.removeRootPower(this.chargePerCraft);
             }
+        } else {
+            sendFeedback(blockMenu.getLocation(), FeedbackType.NOT_ENOUGH_POWER);
         }
     }
 
@@ -180,6 +189,7 @@ public abstract class AbstractAutoCrafter extends NetworkObject {
         for (Map.Entry<ItemStack, Integer> entry : requiredItems.entrySet()) {
             if (!root.contains(new ItemRequest(entry.getKey(), entry.getValue()))) {
                 sendDebugMessage(blockMenu.getLocation(), "Network does not have required items");
+                sendFeedback(blockMenu.getLocation(), FeedbackType.NOT_ENOUGH_ITEMS_IN_NETWORK);
                 return false;
             }
         }
@@ -212,6 +222,7 @@ public abstract class AbstractAutoCrafter extends NetworkObject {
             if (instance.getRecipe() == null) {
                 returnItems(root, inputs);
                 sendDebugMessage(blockMenu.getLocation(), "No vanilla recipe found");
+                sendFeedback(blockMenu.getLocation(), FeedbackType.NO_VANILLA_RECIPE_FOUND);
                 return false;
             } else if (Arrays.equals(instance.getRecipeItems(), inputs)) {
                 setCache(blockMenu, instance);
@@ -223,6 +234,7 @@ public abstract class AbstractAutoCrafter extends NetworkObject {
         if (crafted == null || crafted.getType() == Material.AIR) {
             sendDebugMessage(blockMenu.getLocation(), "No valid recipe found");
             sendDebugMessage(blockMenu.getLocation(), "inputs: " + Arrays.toString(inputs));
+            sendFeedback(blockMenu.getLocation(), FeedbackType.NO_VALID_RECIPE_FOUND);
             returnItems(root, inputs);
             return false;
         }
@@ -233,6 +245,7 @@ public abstract class AbstractAutoCrafter extends NetworkObject {
             location.getWorld().spawnParticle(Particle.WAX_OFF, location, 0, 0, 4, 0);
         }
         blockMenu.pushItem(crafted, OUTPUT_SLOT);
+        sendFeedback(blockMenu.getLocation(), FeedbackType.WORKING);
         return true;
     }
 

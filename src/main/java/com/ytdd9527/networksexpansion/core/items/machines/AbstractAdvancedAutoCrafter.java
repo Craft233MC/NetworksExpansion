@@ -1,5 +1,6 @@
 package com.ytdd9527.networksexpansion.core.items.machines;
 
+import com.balugaq.netex.api.enums.FeedbackType;
 import com.balugaq.netex.api.helpers.Icon;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
 import io.github.sefiraat.networks.NetworkStorage;
@@ -93,6 +94,7 @@ public abstract class AbstractAdvancedAutoCrafter extends NetworkObject {
 
         if (definition == null || definition.getNode() == null) {
             sendDebugMessage(blockMenu.getLocation(), "No network found");
+            sendFeedback(blockMenu.getLocation(), FeedbackType.NO_NETWORK_FOUND);
             return;
         }
 
@@ -109,6 +111,7 @@ public abstract class AbstractAdvancedAutoCrafter extends NetworkObject {
 
         if (blueprint == null || blueprint.getType() == Material.AIR) {
             sendDebugMessage(blockMenu.getLocation(), "No blueprint found");
+            sendFeedback(blockMenu.getLocation(), FeedbackType.NO_BLUEPRINT_FOUND);
             return;
         }
 
@@ -119,6 +122,7 @@ public abstract class AbstractAdvancedAutoCrafter extends NetworkObject {
 
             if (!isValidBlueprint(item)) {
                 sendDebugMessage(blockMenu.getLocation(), "Invalid blueprint");
+                sendFeedback(blockMenu.getLocation(), FeedbackType.INVALID_BLUEPRINT);
                 return;
             }
 
@@ -139,6 +143,7 @@ public abstract class AbstractAdvancedAutoCrafter extends NetworkObject {
 
                 if (optional.isEmpty()) {
                     sendDebugMessage(blockMenu.getLocation(), "No blueprint instance found");
+                    sendFeedback(blockMenu.getLocation(), FeedbackType.NO_BLUEPRINT_INSTANCE_FOUND);
                     return;
                 }
 
@@ -154,12 +159,15 @@ public abstract class AbstractAdvancedAutoCrafter extends NetworkObject {
                     && (output.getAmount() + instance.getItemStack().getAmount() * blueprintAmount > output.getMaxStackSize() || !StackUtils.itemsMatch(instance, output))
             ) {
                 sendDebugMessage(blockMenu.getLocation(), "Output slot is full");
+                sendFeedback(blockMenu.getLocation(), FeedbackType.OUTPUT_FULL);
                 return;
             }
 
             if (tryCraft(blockMenu, instance, root, blueprintAmount)) {
                 root.removeRootPower(this.chargePerCraft);
             }
+        } else {
+            sendFeedback(blockMenu.getLocation(), FeedbackType.NOT_ENOUGH_POWER);
         }
     }
 
@@ -184,6 +192,7 @@ public abstract class AbstractAdvancedAutoCrafter extends NetworkObject {
         for (Map.Entry<ItemStack, Integer> entry : requiredItems.entrySet()) {
             if (!root.contains(new ItemRequest(entry.getKey(), entry.getValue()))) {
                 sendDebugMessage(blockMenu.getLocation(), "Not enough items in network");
+                sendFeedback(blockMenu.getLocation(), FeedbackType.NOT_ENOUGH_ITEMS_IN_NETWORK);
                 return false;
             }
         }
@@ -226,6 +235,7 @@ public abstract class AbstractAdvancedAutoCrafter extends NetworkObject {
             if (instance.getRecipe() == null) {
                 returnItems(root, inputs);
                 sendDebugMessage(blockMenu.getLocation(), "No vanilla recipe found");
+                sendFeedback(blockMenu.getLocation(), FeedbackType.NO_VANILLA_RECIPE_FOUND);
                 return false;
             } else if (Arrays.equals(instance.getRecipeItems(), inputs)) {
                 setCache(blockMenu, instance);
@@ -238,6 +248,7 @@ public abstract class AbstractAdvancedAutoCrafter extends NetworkObject {
             sendDebugMessage(blockMenu.getLocation(), "No valid recipe found");
             sendDebugMessage(blockMenu.getLocation(), "inputs: " + Arrays.toString(inputs));
             returnItems(root, acutalInputs);
+            sendFeedback(blockMenu.getLocation(), FeedbackType.NO_VALID_RECIPE_FOUND);
             return false;
         }
 
@@ -252,10 +263,12 @@ public abstract class AbstractAdvancedAutoCrafter extends NetworkObject {
         if (crafted.getAmount() > crafted.getMaxStackSize()) {
             returnItems(root, acutalInputs);
             sendDebugMessage(blockMenu.getLocation(), "Result is too large");
+            sendFeedback(blockMenu.getLocation(), FeedbackType.RESULT_IS_TOO_LARGE);
             return false;
         }
 
         blockMenu.pushItem(crafted, OUTPUT_SLOT);
+        sendFeedback(blockMenu.getLocation(), FeedbackType.WORKING);
         return true;
     }
 

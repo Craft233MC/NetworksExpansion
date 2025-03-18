@@ -12,6 +12,7 @@ import io.github.sefiraat.networks.slimefun.network.NetworkQuantumStorage;
 import io.github.sefiraat.networks.utils.StackUtils;
 import io.github.thebusybiscuit.slimefun4.utils.ChatUtils;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
+import net.guizhanss.guizhanlib.minecraft.helper.inventory.ItemStackHelper;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -78,12 +79,9 @@ public class HudCallbacks {
     }
 
     private static String format(ItemStack itemStack, long amount, int limit) {
-        ItemMeta meta = itemStack.getItemMeta();
         String amountStr = HudBuilder.getAbbreviatedNumber(amount);
         String limitStr = HudBuilder.getAbbreviatedNumber(limit);
-        String itemName = meta != null && meta.hasDisplayName()
-                ? meta.getDisplayName()
-                : ChatUtils.humanize(itemStack.getType().name());
+        String itemName = ItemStackHelper.getDisplayName(itemStack);
 
         return "&7| &f" + itemName + " &7| " + amountStr + "/" + limitStr;
     }

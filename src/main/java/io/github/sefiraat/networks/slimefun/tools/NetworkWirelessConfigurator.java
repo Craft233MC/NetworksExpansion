@@ -2,6 +2,7 @@ package io.github.sefiraat.networks.slimefun.tools;
 
 import com.jeff_media.morepersistentdatatypes.DataType;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
+import com.ytdd9527.networksexpansion.core.items.SpecialSlimefunItem;
 import io.github.sefiraat.networks.Networks;
 import io.github.sefiraat.networks.slimefun.network.NetworkWirelessReceiver;
 import io.github.sefiraat.networks.slimefun.network.NetworkWirelessTransmitter;
@@ -26,7 +27,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import javax.annotation.Nonnull;
 import java.util.Optional;
 
-public class NetworkWirelessConfigurator extends SlimefunItem {
+public class NetworkWirelessConfigurator extends SpecialSlimefunItem {
 
     public NetworkWirelessConfigurator(ItemGroup itemGroup,
                                        SlimefunItemStack item,

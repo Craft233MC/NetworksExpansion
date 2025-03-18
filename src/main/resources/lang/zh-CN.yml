@@ -1,5 +1,51 @@
 # <click_info> = Theme.CLICK_INFO
 messages:
+  feedback:
+    afk: "等待被观察"
+    already_has_item: "抓取槽已经有物品了"
+    block_already_cut: "方块已剪切"
+    block_already_pasted: "方块已粘贴"
+    block_cannot_be_air: "方块不能是空气"
+    block_cannot_be_cut: "方块不能被剪切"
+    block_not_match_template: "方块与模板不匹配"
+    cannot_output_energy: "被禁止向此类机器输出网络能源"
+    disabled_blueprint: "蓝图已被禁用"
+    disabled_output: "输出物已被禁用"
+    error_occurred: "发生错误"
+    full_energy_buffer: "能源已满"
+    initialization: "初始化方向"
+    invalid_block: "无效的方块"
+    invalid_blueprint: "无效的蓝图"
+    invalid_recipe: "无效的配方"
+    invalid_template: "无效的模板"
+    loading_data: "正在加载数据"
+    no_blueprint_found: "没有放置蓝图"
+    no_blueprint_instance_found: "无效蓝图"
+    no_direction_set: "未设置方向"
+    no_enough_space: "没有足够的空间"
+    no_input: "没有输入物"
+    no_inventory_found: "未找到容器"
+    no_item_found: "未找到物品"
+    no_item_request: "无物品请求"
+    no_linked_block_menu_found: "指定的方块没有界面"
+    no_linked_location_found: "未指定方块"
+    no_network_found: "未连接网络"
+    no_owner_found: "没有物主"
+    no_permission: "没有权限"
+    no_target_block: "未指向方块"
+    no_template_found: "未放置模板"
+    no_vanilla_recipe_found: "未找到原版配方"
+    no_valid_recipe_found: "未找到有效配方"
+    not_allowed_block: "不被允许的方块"
+    not_blueprint: "不是蓝图"
+    not_enough_items_in_network: "网络中没有足够的物品"
+    not_enough_power: "没有足够的网络能源"
+    not_enough_resources: "网络中没有足够的原材料"
+    output_full: "输出槽已满"
+    protected_block: "受保护的方块"
+    result_is_too_large: "输出物过多"
+    success: "成功"
+    working: "工作中"
   blueprint:
     title: "<click_info>已指定配方"
     empty: "<passive>空"
@@ -42,6 +88,7 @@ messages:
     ischest: "该方块是否被 WildChest 判断为方块：%s"
     wildchests_test_success: "WildChests 测试成功！"
     wildchests_test_failed: "WildChests 测试失败！"
+    status_view: "位置 %s 反馈了信息: %s"
   commands:
     no-permission: "&c你没有权限执行该指令!"
     no-item-in-hand: "&c你必须在手上持有物品!"
@@ -184,6 +231,13 @@ messages:
         - "<click_info>Shift+左键点击: <passive>打开目标方块"
       set_facing: "<success>已设置朝向此容器!"
   completed-operation:
+    status_viewer:
+      subscribed: "<success>已关注机器 ( %s )"
+      unsubscribed: "<success>不再关注机器 ( %s )"
+      is_networks_object: "<success>是网络节点"
+      not_networks_object: "<warning>不是网络节点"
+      connected_to_network: "<success>已连接至网络"
+      not_connected_to_network: "<warning>未连接至网络"
     decoder:
       decode_blueprint_success: "&a蓝图解码成功!"
     wireless_configurator:
@@ -2465,7 +2519,7 @@ items:
       - "传输至指定的机器中."
       - ""
       - "<click_info>可存储: &72,147,483,647J"
-  
+
   NTW_EXPANSION_AUTHOR_SEFIRAAT:
     name: "Sefiraat"
     lore:
@@ -2485,7 +2539,7 @@ items:
     name: "tinalness"
     lore:
       - "网络拓展开发者"
-  
+
   NTW_EXPANSION_CARGO_NODE_QUICK_TOOL:
     name: "货运节点快配工具"
     lore:
@@ -2494,7 +2548,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_STORAGE_UPGRADE_TABLE:
     name: "网络抽屉升级台"
     lore:
@@ -2502,7 +2556,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_1:
     name: "网络抽屉 I"
     lore:
@@ -2513,7 +2567,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_2:
     name: "网络抽屉 II"
     lore:
@@ -2524,7 +2578,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_3:
     name: "网络抽屉 III"
     lore:
@@ -2535,7 +2589,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_4:
     name: "网络抽屉 IV"
     lore:
@@ -2546,7 +2600,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_5:
     name: "网络抽屉 V"
     lore:
@@ -2557,7 +2611,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_6:
     name: "网络抽屉 VI"
     lore:
@@ -2568,7 +2622,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_7:
     name: "网络抽屉 VII"
     lore:
@@ -2579,7 +2633,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_8:
     name: "网络抽屉 VIII"
     lore:
@@ -2590,7 +2644,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_9:
     name: "网络抽屉 IX"
     lore:
@@ -2601,7 +2655,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_10:
     name: "网络抽屉 X"
     lore:
@@ -2612,7 +2666,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_11:
     name: "网络抽屉 XI"
     lore:
@@ -2623,7 +2677,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_12:
     name: "网络抽屉 XII"
     lore:
@@ -2634,7 +2688,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_13:
     name: "网络抽屉 XIII"
     lore:
@@ -2658,7 +2712,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_2_MODEL:
     name: "网络抽屉 II"
     lore:
@@ -2671,7 +2725,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_3_MODEL:
     name: "网络抽屉 III"
     lore:
@@ -2684,7 +2738,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_4_MODEL:
     name: "网络抽屉 IV"
     lore:
@@ -2697,7 +2751,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_5_MODEL:
     name: "网络抽屉 V"
     lore:
@@ -2710,7 +2764,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_6_MODEL:
     name: "网络抽屉 VI"
     lore:
@@ -2723,7 +2777,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_7_MODEL:
     name: "网络抽屉 VII"
     lore:
@@ -2736,7 +2790,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_8_MODEL:
     name: "网络抽屉 VIII"
     lore:
@@ -2749,7 +2803,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_9_MODEL:
     name: "网络抽屉 IX"
     lore:
@@ -2762,7 +2816,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_10_MODEL:
     name: "网络抽屉 X"
     lore:
@@ -2775,7 +2829,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_11_MODEL:
     name: "网络抽屉 XI"
     lore:
@@ -2788,7 +2842,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_12_MODEL:
     name: "网络抽屉 XII"
     lore:
@@ -2801,7 +2855,7 @@ items:
       - ""
       - "&x&c&c&8&c&f&4&l魔&x&c&b&9&7&f&5&l芋&x&c&a&a&3&f&6&l粘&x&c&9&a&e&f&7&l液&x&c&8&b&9&f&8&l科&x&c&7&c&5&f&9&l技&x&c&5&d&0&f&9&l服&x&c&4&d&b&f&a&l务&x&c&3&e&6&f&b&l器&x&c&2&f&2&f&c&l提&x&c&1&f&d&f&d&l供"
       - ""
-  
+
   NTW_EXPANSION_CARGO_STORAGE_UNIT_13_MODEL:
     name: "网络抽屉 XIII"
     lore:
@@ -2828,25 +2882,25 @@ items:
       - "&6右键以转移物品至物品转移棒"
       - "&6Shift + 右键以转移物品至指定的存储"
       - "&c不支持无尽存储"
-  
+
   NTW_EXPANSION_BLUEPRINT_DECODER:
     name: "&6网络蓝图解码器"
     lore:
       - ""
       - "解码网络蓝图"
-  
+
   NTW_EXPANSION_DUE_MACHINE:
     name: "&6限流机"
     lore:
       - "当输入槽匹配对应白名单物品，传输对应白名单物品数量至输出槽"
-  
+
   NTW_EXPANSION_OFFSETTER:
     name: "&a槽位对应机"
     lore:
       - "&8传输对应槽位"
       - "&8调整偏移值以决定对应的位置"
       - "&7对准一个机器放置，在另一端放置另一个机器"
-  
+
   NTW_EXPANSION_BETTER_GRABBER:
     name: "更好的网络抓取器"
     lore:
@@ -2858,17 +2912,17 @@ items:
     lore:
       - "一块人造绿宝石的碎片"
       - "是信息传输的支柱"
-  
+
   NTW_OPTIC_GLASS:
     name: "光学玻璃"
     lore:
       - "能够传输少量信息的玻璃"
-  
+
   NTW_OPTIC_CABLE:
     name: "光缆"
     lore:
       - "能够传输大量信息的光缆"
-  
+
   NTW_OPTIC_STAR:
     name: "光学之星"
     lore:
@@ -3369,6 +3423,12 @@ items:
       - "&e数量&7: &e按物品数量排序"
       - "&e附属&7: &e按物品所属附属字母顺序排序"
       - "支持拼音搜索"
+
+  # debugger for player
+  NTW_EXPANSION_STATUS_VIEWER:
+    name: "调试器"
+    lore:
+      - "右键网络机器以查看工作日志"
 
 displays:
   quantum_storage:

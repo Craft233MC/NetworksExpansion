@@ -45,13 +45,7 @@ public final class SupportedCompressorRecipes implements HasRecipes, CanTestReci
                         }
                         input = newInput;
                     }
-                    ItemStack[] cleanedInput = new ItemStack[9];
-                    ItemStack cleanedOutput = null;
-                    for (int i = 0; i < 9; i++) {
-                        cleanedInput[i] = ItemStackUtil.getCleanItem(input[i]);
-                    }
-                    cleanedOutput = ItemStackUtil.getCleanItem(output[0]);
-                    RECIPES.put(cleanedInput, cleanedOutput);
+                    RECIPES.put(input, output[0]);
                 }
                 isInput = !isInput;
             }
@@ -65,7 +59,7 @@ public final class SupportedCompressorRecipes implements HasRecipes, CanTestReci
                     if (itemStack == null) {
                         itemStacks[i] = null;
                     } else {
-                        itemStacks[i] = ItemStackUtil.getCleanItem(itemStack);
+                        itemStacks[i] = new ItemStack(itemStack.clone());
                     }
                     if (++i >= 9) {
                         break;

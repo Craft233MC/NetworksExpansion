@@ -1,5 +1,6 @@
 package com.ytdd9527.networksexpansion.implementation.machines.networks.advanced;
 
+import com.balugaq.netex.api.enums.FeedbackType;
 import com.balugaq.netex.api.helpers.Icon;
 import com.balugaq.netex.utils.BlockMenuUtil;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
@@ -127,18 +128,21 @@ public class NetworkBlueprintDecoder extends NetworkObject {
         ItemStack input = menu.getItemInSlot(getInputSlot());
         if (input == null || input.getType() == Material.AIR) {
             player.sendMessage(Networks.getLocalizationService().getString("messages.unsupported-operation.decoder.no_input"));
+            sendFeedback(menu.getLocation(), FeedbackType.NO_INPUT);
             return;
         }
 
         SlimefunItem item = SlimefunItem.getByItem(input);
         if (!(item instanceof AbstractBlueprint)) {
             player.sendMessage(Networks.getLocalizationService().getString("messages.unsupported-operation.decoder.not_blueprint"));
+            sendFeedback(menu.getLocation(), FeedbackType.NOT_BLUEPRINT);
             return;
         }
 
         ItemMeta meta = input.getItemMeta();
         if (meta == null) {
             player.sendMessage(Networks.getLocalizationService().getString("messages.unsupported-operation.decoder.invalid_blueprint"));
+            sendFeedback(menu.getLocation(), FeedbackType.INVALID_BLUEPRINT);
             return;
         }
 
@@ -151,6 +155,7 @@ public class NetworkBlueprintDecoder extends NetworkObject {
         }
         if (blueprintInstance == null) {
             player.sendMessage(Networks.getLocalizationService().getString("messages.unsupported-operation.decoder.invalid_blueprint"));
+            sendFeedback(menu.getLocation(), FeedbackType.INVALID_BLUEPRINT);
             return;
         }
 
@@ -158,6 +163,7 @@ public class NetworkBlueprintDecoder extends NetworkObject {
 
         if (!BlockMenuUtil.fits(menu, inputs, getOutputSlots())) {
             player.sendMessage(Networks.getLocalizationService().getString("messages.unsupported-operation.decoder.output_full"));
+            sendFeedback(menu.getLocation(), FeedbackType.OUTPUT_FULL);
             return;
         }
 
@@ -166,10 +172,12 @@ public class NetworkBlueprintDecoder extends NetworkObject {
         if (left != null && !left.isEmpty()) {
             for (Map.Entry<ItemStack, Integer> entry : left.entrySet()) {
                 player.sendMessage(Networks.getLocalizationService().getString("messages.unsupported-operation.decoder.output_full"));
+                sendFeedback(menu.getLocation(), FeedbackType.OUTPUT_FULL);
                 menu.getLocation().getWorld().dropItem(menu.getLocation(), entry.getKey());
             }
         }
 
         player.sendMessage(Networks.getLocalizationService().getString("messages.completed-operation.decoder.decode_blueprint_success"));
+        sendFeedback(menu.getLocation(), FeedbackType.SUCCESS);
     }
 }

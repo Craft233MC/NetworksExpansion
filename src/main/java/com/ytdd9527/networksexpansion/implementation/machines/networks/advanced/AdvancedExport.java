@@ -1,5 +1,6 @@
 package com.ytdd9527.networksexpansion.implementation.machines.networks.advanced;
 
+import com.balugaq.netex.api.enums.FeedbackType;
 import com.balugaq.netex.api.helpers.Icon;
 import com.balugaq.netex.utils.BlockMenuUtil;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
@@ -112,6 +113,7 @@ public class AdvancedExport extends NetworkObject implements RecipeDisplayItem {
     private void tryFetchItem(@Nonnull BlockMenu blockMenu) {
         final NodeDefinition definition = NetworkStorage.getNode(blockMenu.getLocation());
         if (definition == null || definition.getNode() == null) {
+            sendFeedback(blockMenu.getLocation(), FeedbackType.NO_NETWORK_FOUND);
             return;
         }
         NetworkRoot networkRoot = definition.getNode().getRoot();
@@ -130,6 +132,7 @@ public class AdvancedExport extends NetworkObject implements RecipeDisplayItem {
 
         // no free space, we should escape quickly
         if (totalFreeStackSpaces == 0) {
+            sendFeedback(blockMenu.getLocation(), FeedbackType.NO_ENOUGH_SPACE);
             return;
         }
 
@@ -143,6 +146,7 @@ public class AdvancedExport extends NetworkObject implements RecipeDisplayItem {
 
         // if there is no item request, we should escape quickly
         if (itemRequests.isEmpty()) {
+            sendFeedback(blockMenu.getLocation(), FeedbackType.NO_ITEM_REQUEST);
             return;
         }
 
@@ -155,6 +159,7 @@ public class AdvancedExport extends NetworkObject implements RecipeDisplayItem {
                 placeItems(networkRoot, blockMenu, fetched.clone(), fetched.getAmount(), getOutputSlots());
             }
         }
+        sendFeedback(blockMenu.getLocation(), FeedbackType.WORKING);
     }
 
     private void placeItems(@Nonnull NetworkRoot root, @Nonnull BlockMenu blockMenu, @Nonnull ItemStack itemStack, @Nonnull int itemAmount, int[] outputSlots) {
