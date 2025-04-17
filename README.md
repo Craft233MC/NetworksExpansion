@@ -3,9 +3,6 @@
 
 ## 构建
 初始化本地依赖
-```
-mvn install:install-file -Dfile=lib/FluffyMachines.jar -DgroupId=top.craft233 -DartifactId=FluffyMachines -Dversion=035fe56381 -Dpackaging=jar
-```
 
 ## 特别鸣谢
 

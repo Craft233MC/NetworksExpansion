@@ -279,7 +279,7 @@
         </dependency>
         <!-- Chinese localization library -->
         <dependency>
-            <groupId>net.guizhanss</groupId>
+            <groupId>top.craft233</groupId>
             <artifactId>GuizhanLibPlugin</artifactId>
             <version>1.7.6</version>
             <scope>provided</scope>
@@ -293,10 +293,11 @@
         </dependency>
         <!-- Support FluffyMachines -->
         <dependency>
-            <groupId>top.craft233</groupId>
+            <groupId>com.github.SlimefunGuguProject</groupId>
             <artifactId>FluffyMachines</artifactId>
             <version>035fe56381</version>
-            <scope>provided</scope>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/FluffyMachines.jar</systemPath>
         </dependency>
     </dependencies>
 </project>
