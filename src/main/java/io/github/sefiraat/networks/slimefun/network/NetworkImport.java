@@ -25,7 +25,6 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 
-@SuppressWarnings("deprecation")
 public class NetworkImport extends NetworkObject {
 
     private static final int[] INPUT_SLOTS = new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8};
@@ -83,7 +82,7 @@ public class NetworkImport extends NetworkObject {
             if (itemStack == null || itemStack.getType() == Material.AIR) {
                 continue;
             }
-            definition.getNode().getRoot().addItemStack(itemStack);
+            definition.getNode().getRoot().addItemStack0(blockMenu.getLocation(), itemStack);
         }
         sendFeedback(blockMenu.getLocation(), FeedbackType.WORKING);
     }

@@ -20,7 +20,7 @@ public class SupportedPluginManager {
     private final @Getter boolean slimeHud;
     private final @Getter boolean roseStacker;
     private final @Getter boolean wildStacker;
-
+    private final @Getter boolean guguSlimefunLib;
     private @Getter RoseStackerAPI roseStackerAPI;
     // region First Tick Only Registrations
     private @Getter boolean mcMMO;
@@ -42,6 +42,7 @@ public class SupportedPluginManager {
         }
 
         this.wildStacker = Bukkit.getPluginManager().isPluginEnabled("WildStacker");
+        this.guguSlimefunLib = Bukkit.getPluginManager().isPluginEnabled("GuguSlimefunLib");
         Networks.getInstance()
                 .getFoliaLib()
                 .getScheduler()

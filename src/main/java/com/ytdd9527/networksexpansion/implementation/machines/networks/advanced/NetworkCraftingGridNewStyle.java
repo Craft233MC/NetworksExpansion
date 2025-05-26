@@ -1,9 +1,6 @@
 package com.ytdd9527.networksexpansion.implementation.machines.networks.advanced;
 
 import com.balugaq.netex.api.helpers.Icon;
-import io.github.sefiraat.networks.events.NetworkCraftEvent;
-import io.github.thebusybiscuit.slimefun4.utils.ChestMenuUtils;
-import net.guizhanss.guizhanlib.minecraft.helper.inventory.ItemStackHelper;
 import com.balugaq.netex.api.helpers.SupportedCraftingTableRecipes;
 import com.balugaq.netex.utils.BlockMenuUtil;
 import com.ytdd9527.networksexpansion.core.items.machines.AbstractGridNewStyle;
@@ -11,6 +8,7 @@ import com.ytdd9527.networksexpansion.implementation.ExpansionItems;
 import com.ytdd9527.networksexpansion.utils.itemstacks.ItemStackUtil;
 import io.github.sefiraat.networks.NetworkStorage;
 import io.github.sefiraat.networks.Networks;
+import io.github.sefiraat.networks.events.NetworkCraftEvent;
 import io.github.sefiraat.networks.network.GridItemRequest;
 import io.github.sefiraat.networks.network.NetworkRoot;
 import io.github.sefiraat.networks.network.NodeDefinition;
@@ -24,10 +22,12 @@ import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.items.CustomItemStack;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.protection.Interaction;
+import io.github.thebusybiscuit.slimefun4.utils.ChestMenuUtils;
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ClickAction;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenuPreset;
 import me.mrCookieSlime.Slimefun.api.item_transport.ItemTransportFlow;
+import net.guizhanss.guizhanlib.minecraft.helper.inventory.ItemStackHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -215,7 +215,7 @@ public class NetworkCraftingGridNewStyle extends AbstractGridNewStyle {
         if (!action.isRightClicked() && action.isShiftClicked()) {
             ItemStack output = menu.getItemInSlot(OUTPUT_SLOT);
             if (output != null && output.getType() != Material.AIR) {
-                root.addItemStack(output);
+                root.addItemStack0(menu.getLocation(), output);
             }
             return;
         }
@@ -265,7 +265,7 @@ public class NetworkCraftingGridNewStyle extends AbstractGridNewStyle {
 
         ItemStack output = menu.getItemInSlot(OUTPUT_SLOT);
         if (output != null && output.getType() != Material.AIR) {
-            root.addItemStack(output);
+            root.addItemStack0(menu.getLocation(), output);
         }
 
         if (!BlockMenuUtil.fits(menu, crafted, OUTPUT_SLOT)) {
@@ -307,7 +307,7 @@ public class NetworkCraftingGridNewStyle extends AbstractGridNewStyle {
         Map<ItemStack, Integer> need = new HashMap<>();
         for (Map.Entry<ItemStack, Integer> entry : requiredItems.entrySet()) {
             int required = entry.getValue();
-            int amount = (int) (maxAmount * required);
+            int amount = maxAmount * required;
             need.put(entry.getKey(), amount);
         }
 
@@ -315,18 +315,16 @@ public class NetworkCraftingGridNewStyle extends AbstractGridNewStyle {
         for (Map.Entry<ItemStack, Integer> entry : need.entrySet()) {
             ItemStack itemStack = entry.getKey();
             GridItemRequest request = new GridItemRequest(itemStack, entry.getValue(), player);
-            root.getItemStack(request);
+            root.getItemStack0(menu.getLocation(), request);
             if (StackUtils.itemsMatch(itemStack, new ItemStack(itemStack.getType()))) {
                 switch (itemStack.getType()) {
-                    case WATER_BUCKET, LAVA_BUCKET, MILK_BUCKET, COD_BUCKET, SALMON_BUCKET, PUFFERFISH_BUCKET, TROPICAL_FISH_BUCKET, AXOLOTL_BUCKET, POWDER_SNOW_BUCKET, TADPOLE_BUCKET -> {
-                        root.addItemStack(new ItemStack(Material.BUCKET, entry.getValue()));
-                    }
-                    case POTION, SPLASH_POTION, LINGERING_POTION, HONEY_BOTTLE, DRAGON_BREATH -> {
-                        root.addItemStack(new ItemStack(Material.GLASS_BOTTLE, entry.getValue()));
-                    }
-                    case MUSHROOM_STEW, BEETROOT_SOUP, RABBIT_STEW, SUSPICIOUS_STEW -> {
-                        root.addItemStack(new ItemStack(Material.BOWL, entry.getValue()));
-                    }
+                    case WATER_BUCKET, LAVA_BUCKET, MILK_BUCKET, COD_BUCKET, SALMON_BUCKET, PUFFERFISH_BUCKET,
+                         TROPICAL_FISH_BUCKET, AXOLOTL_BUCKET, POWDER_SNOW_BUCKET, TADPOLE_BUCKET ->
+                            root.addItemStack0(menu.getLocation(), new ItemStack(Material.BUCKET, entry.getValue()));
+                    case POTION, SPLASH_POTION, LINGERING_POTION, HONEY_BOTTLE, DRAGON_BREATH ->
+                            root.addItemStack0(menu.getLocation(), new ItemStack(Material.GLASS_BOTTLE, entry.getValue()));
+                    case MUSHROOM_STEW, BEETROOT_SOUP, RABBIT_STEW, SUSPICIOUS_STEW ->
+                            root.addItemStack0(menu.getLocation(), new ItemStack(Material.BOWL, entry.getValue()));
                 }
             }
         }

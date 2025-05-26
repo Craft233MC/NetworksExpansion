@@ -17,11 +17,13 @@ import io.github.sefiraat.networks.integrations.NetheoPlants;
 import io.github.sefiraat.networks.managers.ListenerManager;
 import io.github.sefiraat.networks.managers.SupportedPluginManager;
 import io.github.sefiraat.networks.slimefun.NetworksSlimefunItemStacks;
+import io.github.sefiraat.networks.slimefun.network.AdminDebuggable;
 import io.github.sefiraat.networks.slimefun.network.NetworkController;
 import io.github.sefiraat.networks.utils.NetworkUtils;
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.libraries.paperlib.PaperLib;
+import lombok.Getter;
 import net.guizhanss.guizhanlibplugin.updater.GuizhanUpdater;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.AdvancedPie;
@@ -45,8 +47,11 @@ import java.util.logging.Level;
 public class Networks extends JavaPlugin implements SlimefunAddon {
     private static final String DEFAULT_LANGUAGE = "zh-CN";
     private static Networks instance;
+    @Getter
     private static DataSource dataSource;
+    @Getter
     private static QueryQueue queryQueue;
+    @Getter
     private static Runnable autoSaveThread;
     private static MinecraftVersion minecraftVersion = MinecraftVersion.UNKNOWN;
     private final String username;
@@ -69,18 +74,6 @@ public class Networks extends JavaPlugin implements SlimefunAddon {
 
     public static ConfigManager getConfigManager() {
         return Networks.getInstance().configManager;
-    }
-
-    public static QueryQueue getQueryQueue() {
-        return queryQueue;
-    }
-
-    public static DataSource getDataSource() {
-        return dataSource;
-    }
-
-    public static Runnable getAutoSaveThread() {
-        return autoSaveThread;
     }
 
     public static Networks getInstance() {
@@ -175,7 +168,9 @@ public class Networks extends JavaPlugin implements SlimefunAddon {
         setupMetrics();
 
         getFoliaLib().getScheduler().runTimer(
-                () -> slimefunTickCount++, 1, Slimefun.getTickerTask().getTickRate());
+                        () -> slimefunTickCount++,
+                        1,
+                        Slimefun.getTickerTask().getTickRate());
 
         // Fix dupe bug which break the network controller data without player interaction
         getFoliaLib().getScheduler().runTimer(() -> {
@@ -196,6 +191,7 @@ public class Networks extends JavaPlugin implements SlimefunAddon {
                         Slimefun.getTickerTask().getTickRate());
 
 
+        AdminDebuggable.load();
         getLogger().info(getLocalizationService().getString("messages.startup.enabled-successfully"));
     }
 
