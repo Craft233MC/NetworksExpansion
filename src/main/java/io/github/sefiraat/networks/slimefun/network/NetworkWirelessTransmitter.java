@@ -31,7 +31,6 @@ import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 
-@SuppressWarnings("deprecation")
 public class NetworkWirelessTransmitter extends NetworkObject {
 
     public static final int TEMPLATE_SLOT = 13;
@@ -153,7 +152,7 @@ public class NetworkWirelessTransmitter extends NetworkObject {
                 return;
             }
 
-            final ItemStack stackToPush = definition.getNode().getRoot().getItemStack(
+            final ItemStack stackToPush = definition.getNode().getRoot().getItemStack0(blockMenu.getLocation(),
                     new ItemRequest(templateStack.clone(), templateStack.getMaxStackSize())
             );
 

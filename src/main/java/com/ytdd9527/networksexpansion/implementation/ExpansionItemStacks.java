@@ -12,7 +12,6 @@ import org.bukkit.inventory.ItemStack;
 
 /**
  * @author ytdd9527
- * @noinspection SpellCheckingInspection
  * @since 2.0
  */
 public class ExpansionItemStacks {
@@ -803,6 +802,10 @@ public class ExpansionItemStacks {
     public static final SlimefunItemStack STATUS_VIEWER = Theme.themedSlimefunItemStack(
             Networks.getLocalizationService().getItem("NTW_EXPANSION_STATUS_VIEWER", Material.COMPASS),
             Theme.TOOL
+    );
+    public static final SlimefunItemStack DRAWER_TIPS = Theme.themedSlimefunItemStack(
+            Networks.getLocalizationService().getItem("NTW_EXPANSION_DRAWER_TIPS", Material.BOOK),
+            Theme.GUIDE
     );
 
     public static ItemStack Enchanted(Material material) {

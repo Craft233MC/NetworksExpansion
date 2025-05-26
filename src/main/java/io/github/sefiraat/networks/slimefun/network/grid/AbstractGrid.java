@@ -2,7 +2,6 @@ package io.github.sefiraat.networks.slimefun.network.grid;
 
 import com.balugaq.netex.api.enums.FeedbackType;
 import com.balugaq.netex.api.helpers.Icon;
-import net.guizhanss.guizhanlib.minecraft.helper.inventory.ItemStackHelper;
 import com.github.houbb.pinyin.constant.enums.PinyinStyleEnum;
 import com.github.houbb.pinyin.util.PinyinHelper;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
@@ -27,6 +26,7 @@ import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ClickAction;
 import me.mrCookieSlime.Slimefun.Objects.handlers.BlockTicker;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenuPreset;
+import net.guizhanss.guizhanlib.minecraft.helper.inventory.ItemStackHelper;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -144,7 +144,7 @@ public abstract class AbstractGrid extends NetworkObject {
             return;
         }
 
-        definition.getNode().getRoot().addItemStack(itemStack);
+        definition.getNode().getRoot().addItemStack0(blockMenu.getLocation(), itemStack);
     }
 
 
@@ -218,7 +218,7 @@ public abstract class AbstractGrid extends NetworkObject {
                 });
             } else {
                 blockMenu.replaceExistingItem(getDisplaySlots()[i], Icon.BLANK_SLOT_STACK);
-                blockMenu.addMenuClickHandler(getDisplaySlots()[i], (p, slot, item, action) ->{
+                blockMenu.addMenuClickHandler(getDisplaySlots()[i], (p, slot, item, action) -> {
                     receiveItem(p, action, blockMenu);
                     return false;
                 });
@@ -327,7 +327,7 @@ public abstract class AbstractGrid extends NetworkObject {
 
         final ItemStack cursor = player.getItemOnCursor();
         if (cursor.getType() != Material.AIR && !StackUtils.itemsMatch(clone, StackUtils.getAsQuantity(player.getItemOnCursor(), 1))) {
-            root.addItemStack(player.getItemOnCursor());
+            root.addItemStack0(blockMenu.getLocation(), player.getItemOnCursor());
             return;
         }
 
@@ -340,17 +340,17 @@ public abstract class AbstractGrid extends NetworkObject {
         final GridItemRequest request = new GridItemRequest(clone, amount, player);
 
         if (action.isShiftClicked()) {
-            addToInventory(player, definition, request, action);
+            addToInventory(player, definition, request, action, blockMenu);
         } else {
-            addToCursor(player, definition, request, action);
+            addToCursor(player, definition, request, action, blockMenu);
         }
 
         updateDisplay(blockMenu);
     }
 
     @ParametersAreNonnullByDefault
-    private void addToInventory(Player player, NodeDefinition definition, GridItemRequest request, ClickAction action) {
-        ItemStack requestingStack = definition.getNode().getRoot().getItemStack(request);
+    private void addToInventory(Player player, NodeDefinition definition, GridItemRequest request, ClickAction action, BlockMenu menu) {
+        ItemStack requestingStack = definition.getNode().getRoot().getItemStack0(menu.getLocation(), request);
 
         if (requestingStack == null) {
             return;
@@ -359,12 +359,12 @@ public abstract class AbstractGrid extends NetworkObject {
         HashMap<Integer, ItemStack> remnant = player.getInventory().addItem(requestingStack);
         requestingStack = remnant.values().stream().findFirst().orElse(null);
         if (requestingStack != null) {
-            definition.getNode().getRoot().addItemStack(requestingStack);
+            definition.getNode().getRoot().addItemStack0(menu.getLocation(), requestingStack);
         }
     }
 
     @ParametersAreNonnullByDefault
-    private void addToCursor(Player player, NodeDefinition definition, GridItemRequest request, ClickAction action) {
+    private void addToCursor(Player player, NodeDefinition definition, GridItemRequest request, ClickAction action, @Nonnull BlockMenu menu) {
         final ItemStack cursor = player.getItemOnCursor();
 
         // Quickly check if the cursor has an item and if we can add more to it
@@ -372,7 +372,7 @@ public abstract class AbstractGrid extends NetworkObject {
             return;
         }
 
-        ItemStack requestingStack = definition.getNode().getRoot().getItemStack(request);
+        ItemStack requestingStack = definition.getNode().getRoot().getItemStack0(menu.getLocation(), request);
         setCursor(player, cursor, requestingStack);
     }
 
@@ -436,6 +436,7 @@ public abstract class AbstractGrid extends NetworkObject {
     protected ItemStack getFilterStack() {
         return Icon.FILTER_STACK;
     }
+
     public void receiveItem(Player player, ClickAction action, BlockMenu blockMenu) {
         NodeDefinition definition = NetworkStorage.getNode(blockMenu.getLocation());
         if (definition == null || definition.getNode() == null) {
@@ -447,7 +448,7 @@ public abstract class AbstractGrid extends NetworkObject {
 
         ItemStack cursor = player.getItemOnCursor();
         if (cursor != null && cursor.getType() != Material.AIR) {
-            definition.getNode().getRoot().addItemStack(cursor);
+            definition.getNode().getRoot().addItemStack0(blockMenu.getLocation(), cursor);
         }
     }
 }

@@ -3,7 +3,6 @@ package com.ytdd9527.networksexpansion.implementation;
 import com.balugaq.netex.api.enums.StorageUnitType;
 import com.ytdd9527.networksexpansion.core.items.SpecialSlimefunItem;
 import com.ytdd9527.networksexpansion.core.items.unusable.AuthorHead;
-import com.ytdd9527.networksexpansion.core.items.unusable.NetworksExpansionGuide;
 import com.ytdd9527.networksexpansion.core.items.unusable.UnusableSlimefunItem;
 import com.ytdd9527.networksexpansion.implementation.blueprints.AncientAltarBlueprint;
 import com.ytdd9527.networksexpansion.implementation.blueprints.ArmorForgeBlueprint;
@@ -935,7 +934,6 @@ public class ExpansionItems {
     );
 
 
-
     public static final TransferGrabber TRANSFER_GRABBER = new TransferGrabber(
             ExpansionItemsMenus.MENU_CARGO_SYSTEM,
             ExpansionItemStacks.TRANSFER_GRABBER,
@@ -1558,5 +1556,12 @@ public class ExpansionItems {
             ExpansionItemStacks.STATUS_VIEWER,
             ExpansionWorkbench.TYPE,
             ExpansionRecipes.STATUS_VIEWER
+    );
+
+    public static final UnusableSlimefunItem DRAWER_TIPS = new UnusableSlimefunItem(
+            ExpansionItemsMenus.MENU_ITEMS,
+            ExpansionItemStacks.DRAWER_TIPS,
+            RecipeType.NULL,
+            ExpansionRecipes.NULL
     );
 }

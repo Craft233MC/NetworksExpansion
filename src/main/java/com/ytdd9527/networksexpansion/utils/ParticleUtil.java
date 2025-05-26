@@ -95,7 +95,7 @@ public class ParticleUtil {
                 Networks.getFoliaLib().getScheduler().runLaterAsync(wrappedTask -> finalRunnableList.forEach(Runnable::run), tick);
             }
 
-            time += interval;
+            time += (int) interval;
         }
     }
 
@@ -128,7 +128,7 @@ public class ParticleUtil {
                     }
                 }, time / 50);
             }
-            time += interval;
+            time += (int) interval;
         }
     }
 
