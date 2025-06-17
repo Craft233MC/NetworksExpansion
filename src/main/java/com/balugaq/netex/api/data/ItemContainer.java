@@ -12,8 +12,10 @@ public class ItemContainer {
 
     private final int id;
     private final @NotNull ItemStack sample;
+
     @Getter
     private final @NotNull ItemStackWrapper wrapper;
+
     @Setter
     @Getter
     private int amount;
@@ -30,7 +32,7 @@ public class ItemContainer {
         return sample.clone();
     }
 
-    public ItemStack getSampleDirectly() {
+    public @NotNull ItemStack getSampleDirectly() {
         return sample;
     }
 
@@ -60,11 +62,10 @@ public class ItemContainer {
     }
 
     public @NotNull String toString() {
-        return "ItemContainer{" +
-                "id=" + id +
-                ", sample=" + sample +
-                ", wrapper=" + wrapper +
-                ", amount=" + amount +
-                '}';
+        return "ItemContainer{" + "id="
+                + id + ", sample="
+                + sample + ", wrapper="
+                + wrapper + ", amount="
+                + amount + '}';
     }
 }

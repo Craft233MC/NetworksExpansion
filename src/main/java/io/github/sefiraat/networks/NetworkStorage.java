@@ -3,14 +3,15 @@ package io.github.sefiraat.networks;
 import io.github.bakedlibs.dough.blocks.ChunkPosition;
 import io.github.sefiraat.networks.network.NetworkNode;
 import io.github.sefiraat.networks.network.NodeDefinition;
-import lombok.experimental.UtilityClass;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.experimental.UtilityClass;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
 
 @UtilityClass
 public class NetworkStorage {
@@ -49,7 +50,7 @@ public class NetworkStorage {
         }
     }
 
-    public static void registerNode(Location location, NodeDefinition nodeDefinition) {
+    public static void registerNode(@NotNull Location location, NodeDefinition nodeDefinition) {
         synchronized (ALL_NETWORK_OBJECTS) {
             ALL_NETWORK_OBJECTS.put(location, nodeDefinition);
             ChunkPosition unionKey = new ChunkPosition(location);
@@ -61,7 +62,7 @@ public class NetworkStorage {
         }
     }
 
-    public static void unregisterChunk(Chunk chunk) {
+    public static void unregisterChunk(@NotNull Chunk chunk) {
         ChunkPosition chunkPosition = new ChunkPosition(chunk);
         Set<Location> locations = ALL_NETWORK_OBJECTS_BY_CHUNK.get(chunkPosition);
         if (locations == null) {
@@ -79,4 +80,7 @@ public class NetworkStorage {
         }
     }
 
+    public static Map<Location, NodeDefinition> getAllNetworkObjects() {
+        return new HashMap<>(ALL_NETWORK_OBJECTS);
+    }
 }

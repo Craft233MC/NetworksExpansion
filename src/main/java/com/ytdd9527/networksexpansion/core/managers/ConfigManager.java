@@ -1,19 +1,20 @@
 package com.ytdd9527.networksexpansion.core.managers;
 
+import com.balugaq.netex.utils.Debug;
+import com.balugaq.netex.utils.Lang;
 import io.github.sefiraat.networks.Networks;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import javax.annotation.ParametersAreNonnullByDefault;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
 
 public class ConfigManager {
-
 
     public ConfigManager() {
         setupDefaultConfig();
@@ -40,7 +41,7 @@ public class ConfigManager {
         try {
             existingConfig.save(existingFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            Debug.trace(e);
         }
     }
 
@@ -65,7 +66,7 @@ public class ConfigManager {
         return Networks.getInstance().getConfig().getBoolean("debug", false);
     }
 
-    public String getLanguage() {
+    public @NotNull String getLanguage() {
         return Networks.getInstance().getConfig().getString("language", "zh-CN");
     }
 
@@ -89,7 +90,15 @@ public class ConfigManager {
         return Networks.getInstance().getConfig().getInt("speed-down.transport-miss-threshold", 120);
     }
 
+    public long getRecordGCThreshold() {
+        return Networks.getInstance().getConfig().getLong("record-gc.threshold", 131072);
+    }
+
+    public long getRecordGCDeadline() {
+        return Networks.getInstance().getConfig().getLong("record-gc.deadline", 120000);
+    }
+
     public void saveAll() {
-        Networks.getInstance().getLogger().info(Networks.getLocalizationService().getString("messages.save-all"));
+        Networks.getInstance().getLogger().info(Lang.getString("messages.save-all"));
     }
 }
