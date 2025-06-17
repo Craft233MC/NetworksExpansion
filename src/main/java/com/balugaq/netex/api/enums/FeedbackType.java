@@ -1,6 +1,6 @@
 package com.balugaq.netex.api.enums;
 
-import io.github.sefiraat.networks.Networks;
+import com.balugaq.netex.utils.Lang;
 import io.github.sefiraat.networks.utils.Keys;
 import lombok.Getter;
 import org.bukkit.Keyed;
@@ -53,23 +53,23 @@ public enum FeedbackType implements Keyed {
     PROTECTED_BLOCK,
     RESULT_IS_TOO_LARGE,
     SUCCESS,
-    WORKING;
+    WORKING,
+    NOT_ALLOWED_ITEM;
 
     private final @NotNull NamespacedKey key;
     private final @NotNull String message;
 
     FeedbackType() {
         this.key = Keys.newKey(name().toLowerCase());
-        this.message = Networks.getLocalizationService().getString("messages.feedback." + this.key.getKey());
+        this.message = Lang.getString("messages.feedback." + this.key.getKey());
     }
 
     FeedbackType(@NotNull String key) {
         this.key = Keys.newKey(key);
-        this.message = Networks.getLocalizationService().getString("messages.feedback." + this.key.getKey());
+        this.message = Lang.getString("messages.feedback." + this.key.getKey());
     }
 
-    @NotNull
-    @Override
+    @NotNull @Override
     public NamespacedKey getKey() {
         return this.key;
     }

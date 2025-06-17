@@ -1,11 +1,13 @@
 package io.github.sefiraat.networks.network;
 
 import com.balugaq.netex.api.data.ItemContainer;
+import com.balugaq.netex.api.data.ItemFlowRecord;
 import com.balugaq.netex.api.data.StorageUnitData;
 import com.balugaq.netex.api.enums.StorageType;
 import com.balugaq.netex.api.events.NetworkRootLocateStorageEvent;
 import com.balugaq.netex.utils.BlockMenuUtil;
 import com.balugaq.netex.utils.NetworksVersionedParticle;
+import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
 import com.ytdd9527.networksexpansion.implementation.machines.networks.advanced.AdvancedGreedyBlock;
 import com.ytdd9527.networksexpansion.implementation.machines.unit.NetworksDrawer;
@@ -26,19 +28,6 @@ import io.github.sefiraat.networks.slimefun.network.NetworkQuantumStorage;
 import io.github.sefiraat.networks.utils.StackUtils;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.ncbpfluffybear.fluffymachines.items.Barrel;
-import lombok.Getter;
-import lombok.Setter;
-import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
-import me.mrCookieSlime.Slimefun.api.item_transport.ItemTransportFlow;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.inventory.ItemStack;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -47,119 +36,220 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
+import lombok.Getter;
+import lombok.Setter;
+import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
+import me.mrCookieSlime.Slimefun.api.item_transport.ItemTransportFlow;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Warning;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-@SuppressWarnings("unused")
+@SuppressWarnings("deprecation")
 public class NetworkRoot extends NetworkNode {
     public static final int persistentThreshold = Networks.getConfigManager().getPersistentThreshold();
     public static final int cacheMissThreshold = Networks.getConfigManager().getCacheMissThreshold();
     public static final int reduceMs = Networks.getConfigManager().getReduceMs();
     public static final int transportMissThreshold = Networks.getConfigManager().getTransportMissThreshold();
-    public static final Map<Location, Map<Location, Integer /* Access times */>> observingAccessHistory = new ConcurrentHashMap<>();
-    public static final Map<Location, Map<Location, Integer /* Cache miss times */>> persistentAccessHistory = new ConcurrentHashMap<>();
-    public static final Map<Location, Integer /* Transport miss times */> transportMissInputHistory = new ConcurrentHashMap<>();
-    public static final Map<Location, Integer /* Transport miss times */> transportMissOutputHistory = new ConcurrentHashMap<>();
+    public static final Map<Location, Map<Location, Integer /* Access times */>> observingAccessHistory =
+            new ConcurrentHashMap<>();
+    public static final Map<Location, Map<Location, Integer /* Cache miss times */>> persistentAccessHistory =
+            new ConcurrentHashMap<>();
+    public static final Map<Location, Integer /* Transport miss times */> transportMissInputHistory =
+            new ConcurrentHashMap<>();
+    public static final Map<Location, Integer /* Transport miss times */> transportMissOutputHistory =
+            new ConcurrentHashMap<>();
     public static final Map<Location, Long> reducedAccessInputHistory = new ConcurrentHashMap<>();
     public static final Map<Location, Long> reducedAccessOutputHistory = new ConcurrentHashMap<>();
+
     @Getter
     private final long CREATED_TIME = System.currentTimeMillis();
+
     @Getter
     private final Set<Location> nodeLocations = new HashSet<>();
-    private final int[] CELL_AVAILABLE_SLOTS = NetworkCell.SLOTS.stream().mapToInt(i -> i).toArray();
-    private final int[] GREEDY_BLOCK_AVAILABLE_SLOTS = new int[]{NetworkGreedyBlock.INPUT_SLOT};
+
+    private final int[] CELL_AVAILABLE_SLOTS =
+            NetworkCell.SLOTS.stream().mapToInt(i -> i).toArray();
+    private final int[] GREEDY_BLOCK_AVAILABLE_SLOTS = new int[] {NetworkGreedyBlock.INPUT_SLOT};
     private final int[] ADVANCED_GREEDY_BLOCK_AVAILABLE_SLOTS = AdvancedGreedyBlock.INPUT_SLOTS;
+
     @Getter
     private final Set<Location> bridges = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> monitors = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> importers = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> exporters = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> grids = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> cells = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> grabbers = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> pushers = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> purgers = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> crafters = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> powerNodes = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> powerDisplays = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> encoders = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> greedyBlocks = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> cutters = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> pasters = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> vacuums = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> wirelessTransmitters = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> wirelessReceivers = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> powerOutlets = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> transferPushers = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> transferGrabbers = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> transfers = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> advancedImporters = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> advancedExporters = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> advancedGreedyBlocks = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> advancedPurgers = ConcurrentHashMap.newKeySet();
+
+    @Getter
+    private final Set<Location> advancedVacuums = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> lineTransferVanillaPushers = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> lineTransferVanillaGrabbers = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> inputOnlyMonitors = ConcurrentHashMap.newKeySet();
+
     @Getter
     private final Set<Location> outputOnlyMonitors = ConcurrentHashMap.newKeySet();
+
+    @Getter
+    private final Set<Location> linePowerOutlets = ConcurrentHashMap.newKeySet();
+
+    @Getter
+    private final Set<Location> decoders = ConcurrentHashMap.newKeySet();
+
+    @Getter
+    private final Set<Location> quantumManagers = ConcurrentHashMap.newKeySet();
+
+    @Getter
+    private final Set<Location> drawerManagers = ConcurrentHashMap.newKeySet();
+
+    @Getter
+    private final Set<Location> crafterManagers = ConcurrentHashMap.newKeySet();
+
+    @Getter
+    private final Set<Location> itemFlowViewers = ConcurrentHashMap.newKeySet();
+
     @Deprecated
     private final boolean progressing = false;
+
     @Getter
     private final int maxNodes;
+
     @Getter
-    private Location controller = null;
+    private final boolean recordFlow;
+
+    @Getter
+    private final @Nullable ItemFlowRecord itemFlowRecord;
+
+    @Getter
+    private @Nullable Location controller = null;
+
     @Getter
     private boolean isOverburdened = false;
+
     @Deprecated
-    private Set<BarrelIdentity> barrels = null;
-    private Set<BarrelIdentity> inputAbleBarrels = null;
-    private Set<BarrelIdentity> outputAbleBarrels = null;
+    private @Nullable Set<BarrelIdentity> barrels = null;
+
+    private @Nullable Set<BarrelIdentity> inputAbleBarrels = null;
+    private @Nullable Set<BarrelIdentity> outputAbleBarrels = null;
+
     @Deprecated
-    private Map<StorageUnitData, Location> cargoStorageUnitDatas = null;
-    private Map<StorageUnitData, Location> inputAbleCargoStorageUnitDatas = null;
-    private Map<StorageUnitData, Location> outputAbleCargoStorageUnitDatas = null;
-    private Map<Location, BarrelIdentity> mapInputAbleBarrels = null;
-    private Map<Location, BarrelIdentity> mapOutputAbleBarrels = null;
-    private Map<Location, StorageUnitData> mapInputAbleCargoStorageUnits = null;
-    private Map<Location, StorageUnitData> mapOutputAbleCargoStorageUnits = null;
+    private @Nullable Map<StorageUnitData, Location> cargoStorageUnitDatas = null;
+
+    private @Nullable Map<StorageUnitData, Location> inputAbleCargoStorageUnitDatas = null;
+    private @Nullable Map<StorageUnitData, Location> outputAbleCargoStorageUnitDatas = null;
+    private @Nullable Map<Location, BarrelIdentity> mapInputAbleBarrels = null;
+    private @Nullable Map<Location, BarrelIdentity> mapOutputAbleBarrels = null;
+    private @Nullable Map<Location, StorageUnitData> mapInputAbleCargoStorageUnits = null;
+    private @Nullable Map<Location, StorageUnitData> mapOutputAbleCargoStorageUnits = null;
+
     @Setter
     @Getter
     private long rootPower = 0;
+
     @Setter
     @Getter
     private boolean displayParticles = false;
 
-    public NetworkRoot(@Nonnull Location location, @Nonnull NodeType type, int maxNodes) {
+    public NetworkRoot(@NotNull Location location, @NotNull NodeType type, int maxNodes) {
+        this(location, type, maxNodes, false, null);
+    }
+
+    public NetworkRoot(
+            @NotNull Location location,
+            @NotNull NodeType type,
+            int maxNodes,
+            boolean recordFlow,
+            @Nullable ItemFlowRecord itemFlowRecord) {
         super(location, type);
         this.maxNodes = maxNodes;
         this.root = this;
+        this.recordFlow = recordFlow;
+        this.itemFlowRecord = itemFlowRecord;
 
         registerNode(location, type);
     }
@@ -227,7 +317,150 @@ public class NetworkRoot extends NetworkNode {
         observingAccessHistory.put(location, locations);
     }
 
-    public void registerNode(@Nonnull Location location, @Nonnull NodeType type) {
+    @Nullable public static InfinityBarrel getInfinityBarrel(@NotNull BlockMenu blockMenu, @NotNull StorageUnit storageUnit) {
+        return getInfinityBarrel(blockMenu, storageUnit, false);
+    }
+
+    @Nullable public static InfinityBarrel getInfinityBarrel(
+            @NotNull BlockMenu blockMenu, @NotNull StorageUnit storageUnit, boolean includeEmpty) {
+        final ItemStack itemStack = blockMenu.getItemInSlot(16);
+        final SlimefunBlockData data = StorageCacheUtils.getBlock(blockMenu.getLocation());
+        if (data == null) {
+            return null;
+        }
+        final String storedString = data.getData("stored");
+
+        if (storedString == null) {
+            return null;
+        }
+
+        final int storedInt = Integer.parseInt(storedString);
+
+        if (!includeEmpty && (itemStack == null || itemStack.getType() == Material.AIR)) {
+            return null;
+        }
+
+        final StorageCache cache = storageUnit.getCache(blockMenu.getLocation());
+
+        if (cache == null) {
+            return null;
+        }
+
+        final ItemStack clone;
+        if (itemStack == null) {
+            clone = null;
+        } else {
+            clone = itemStack.clone();
+            clone.setAmount(1);
+        }
+
+        return new InfinityBarrel(
+                blockMenu.getLocation(), clone, storedInt + (itemStack == null ? 0 : itemStack.getAmount()), cache);
+    }
+
+    @Nullable public static FluffyBarrel getFluffyBarrel(@NotNull BlockMenu blockMenu, @NotNull Barrel barrel) {
+        return getFluffyBarrel(blockMenu, barrel, false);
+    }
+
+    @Nullable public static FluffyBarrel getFluffyBarrel(
+            @NotNull BlockMenu blockMenu, @NotNull Barrel barrel, boolean includeEmpty) {
+        Block block = blockMenu.getBlock();
+        ItemStack itemStack;
+        try {
+            itemStack = barrel.getStoredItem(block);
+        } catch (NullPointerException ignored) {
+            return null;
+        }
+
+        if (!includeEmpty && (itemStack == null || itemStack.getType() == Material.AIR)) {
+            return null;
+        }
+
+        final ItemStack clone;
+        if (itemStack == null) {
+            clone = null;
+        } else {
+            clone = itemStack.clone();
+            clone.setAmount(1);
+        }
+
+        int stored = barrel.getStored(block);
+
+        if (stored <= 0) {
+            return null;
+        }
+        int limit = barrel.getCapacity(block);
+        boolean voidExcess = Boolean.parseBoolean(StorageCacheUtils.getData(blockMenu.getLocation(), "trash"));
+
+        return new FluffyBarrel(blockMenu.getLocation(), clone, stored, limit, voidExcess);
+    }
+
+    @Nullable public static NetworkStorage getNetworkStorage(@NotNull BlockMenu blockMenu) {
+        return getNetworkStorage(blockMenu, false);
+    }
+
+    @Nullable public static NetworkStorage getNetworkStorage(@NotNull BlockMenu blockMenu, boolean includeEmpty) {
+
+        final QuantumCache cache = NetworkQuantumStorage.getCaches().get(blockMenu.getLocation());
+
+        if (cache == null) {
+            return null;
+        }
+
+        final ItemStack itemStack = cache.getItemStack();
+        if ((itemStack == null || itemStack.getType() == Material.AIR) && !includeEmpty) {
+            return null;
+        }
+
+        final ItemStack output = blockMenu.getItemInSlot(NetworkQuantumStorage.OUTPUT_SLOT);
+        long storedInt = cache.getAmount();
+        if (output != null && output.getType() != Material.AIR && StackUtils.itemsMatch(cache, output)) {
+            storedInt = storedInt + output.getAmount();
+        }
+
+        final ItemStack clone;
+
+        if (itemStack != null) {
+            clone = itemStack.clone();
+            clone.setAmount(1);
+        } else {
+            clone = null;
+        }
+
+        return new NetworkStorage(blockMenu.getLocation(), clone, storedInt);
+    }
+
+    @Nullable public static BarrelIdentity getBarrel(@NotNull Location barrelLocation) {
+        return getBarrel(barrelLocation, false);
+    }
+
+    @Nullable public static BarrelIdentity getBarrel(@NotNull Location barrelLocation, boolean includeEmpty) {
+        SlimefunItem item = StorageCacheUtils.getSfItem(barrelLocation);
+        BlockMenu menu = StorageCacheUtils.getMenu(barrelLocation);
+        if (menu == null) {
+            return null;
+        }
+
+        if (item instanceof NetworkQuantumStorage) {
+            return getNetworkStorage(menu, includeEmpty);
+        } else if (item instanceof Barrel barrel) {
+            return getFluffyBarrel(menu, barrel, includeEmpty);
+        } else if (item instanceof StorageUnit storageUnit) {
+            return getInfinityBarrel(menu, storageUnit, includeEmpty);
+        } else {
+            return null;
+        }
+    }
+
+    @Nullable public static StorageUnitData getCargoStorageUnitData(@NotNull BlockMenu blockMenu) {
+        return NetworksDrawer.getStorageData(blockMenu.getLocation());
+    }
+
+    @Nullable public static StorageUnitData getCargoStorageUnitData(@NotNull Location location) {
+        return NetworksDrawer.getStorageData(location);
+    }
+
+    public void registerNode(@NotNull Location location, @NotNull NodeType type) {
         nodeLocations.add(location);
         switch (type) {
             case CONTROLLER -> this.controller = location;
@@ -244,7 +477,9 @@ public class NetworkRoot extends NetworkNode {
                 if (blockMenu == null) {
                     return;
                 }
-                if (Arrays.equals(blockMenu.getPreset().getSlotsAccessedByItemTransport(ItemTransportFlow.WITHDRAW), CELL_AVAILABLE_SLOTS)) {
+                if (Arrays.equals(
+                        blockMenu.getPreset().getSlotsAccessedByItemTransport(ItemTransportFlow.WITHDRAW),
+                        CELL_AVAILABLE_SLOTS)) {
                     cells.add(location);
                 }
             }
@@ -263,7 +498,9 @@ public class NetworkRoot extends NetworkNode {
                 if (blockMenu == null) {
                     return;
                 }
-                if (Arrays.equals(blockMenu.getPreset().getSlotsAccessedByItemTransport(ItemTransportFlow.WITHDRAW), GREEDY_BLOCK_AVAILABLE_SLOTS)) {
+                if (Arrays.equals(
+                        blockMenu.getPreset().getSlotsAccessedByItemTransport(ItemTransportFlow.WITHDRAW),
+                        GREEDY_BLOCK_AVAILABLE_SLOTS)) {
                     greedyBlocks.add(location);
                 }
             }
@@ -273,7 +510,7 @@ public class NetworkRoot extends NetworkNode {
             case WIRELESS_TRANSMITTER -> wirelessTransmitters.add(location);
             case WIRELESS_RECEIVER -> wirelessReceivers.add(location);
             case POWER_OUTLET -> powerOutlets.add(location);
-            // from networks expansion
+                // from networks expansion
             case ADVANCED_IMPORT -> advancedImporters.add(location);
             case ADVANCED_EXPORT -> advancedExporters.add(location);
             case ADVANCED_GREEDY_BLOCK -> {
@@ -284,11 +521,14 @@ public class NetworkRoot extends NetworkNode {
                 if (blockMenu == null) {
                     return;
                 }
-                if (Arrays.equals(blockMenu.getPreset().getSlotsAccessedByItemTransport(ItemTransportFlow.WITHDRAW), ADVANCED_GREEDY_BLOCK_AVAILABLE_SLOTS)) {
+                if (Arrays.equals(
+                        blockMenu.getPreset().getSlotsAccessedByItemTransport(ItemTransportFlow.WITHDRAW),
+                        ADVANCED_GREEDY_BLOCK_AVAILABLE_SLOTS)) {
                     advancedGreedyBlocks.add(location);
                 }
             }
             case ADVANCED_PURGER -> advancedPurgers.add(location);
+            case ADVANCED_VACUUM -> advancedVacuums.add(location);
             case TRANSFER -> transfers.add(location);
             case TRANSFER_PUSHER -> transferPushers.add(location);
             case TRANSFER_GRABBER -> transferGrabbers.add(location);
@@ -296,6 +536,12 @@ public class NetworkRoot extends NetworkNode {
             case LINE_TRANSFER_VANILLA_PUSHER -> lineTransferVanillaPushers.add(location);
             case INPUT_ONLY_MONITOR -> inputOnlyMonitors.add(location);
             case OUTPUT_ONLY_MONITOR -> outputOnlyMonitors.add(location);
+            case LINE_POWER_OUTLET -> linePowerOutlets.add(location);
+            case DECODER -> decoders.add(location);
+            case QUANTUM_MANAGER -> quantumManagers.add(location);
+            case DRAWER_MANAGER -> drawerManagers.add(location);
+            case CRAFTER_MANAGER -> crafterManagers.add(location);
+            case FLOW_VIEWER -> itemFlowViewers.add(location);
         }
     }
 
@@ -309,7 +555,11 @@ public class NetworkRoot extends NetworkNode {
             for (int x = 0; x <= 1; x++) {
                 for (int y = 0; y <= 1; y++) {
                     for (int z = 0; z <= 1; z++) {
-                        loc.getWorld().spawnParticle(NetworksVersionedParticle.EXPLOSION, loc.clone().add(x, y, z), 0);
+                        loc.getWorld()
+                                .spawnParticle(
+                                        NetworksVersionedParticle.EXPLOSION,
+                                        loc.clone().add(x, y, z),
+                                        0);
                     }
                 }
             }
@@ -317,8 +567,7 @@ public class NetworkRoot extends NetworkNode {
         this.isOverburdened = overburdened;
     }
 
-    @Nonnull
-    public Map<ItemStack, Long> getAllNetworkItemsLongType() {
+    @NotNull public Map<ItemStack, Long> getAllNetworkItemsLongType() {
         final Map<ItemStack, Long> itemStacks = new HashMap<>();
 
         // Barrels
@@ -458,7 +707,7 @@ public class NetworkRoot extends NetworkNode {
         return itemStacks;
     }
 
-    public Map<ItemStack, Integer> getAllNetworkItems() {
+    public @NotNull Map<ItemStack, Integer> getAllNetworkItems() {
         final Map<ItemStack, Integer> itemStacks = new HashMap<>();
 
         // Barrels
@@ -598,8 +847,7 @@ public class NetworkRoot extends NetworkNode {
     }
 
     @Deprecated
-    @Nonnull
-    public Set<BarrelIdentity> getBarrels() {
+    @NotNull public Set<BarrelIdentity> getBarrels() {
 
         if (this.barrels != null) {
             return this.barrels;
@@ -625,8 +873,8 @@ public class NetworkRoot extends NetworkNode {
 
             final SlimefunItem slimefunItem = StorageCacheUtils.getSfItem(testLocation);
 
-            if (Networks.getSupportedPluginManager()
-                    .isInfinityExpansion() && slimefunItem instanceof StorageUnit unit) {
+            if (Networks.getSupportedPluginManager().isInfinityExpansion()
+                    && slimefunItem instanceof StorageUnit unit) {
                 final BlockMenu menu = StorageCacheUtils.getMenu(testLocation);
                 if (menu == null) {
                     continue;
@@ -635,7 +883,8 @@ public class NetworkRoot extends NetworkNode {
                 if (infinityBarrel != null) {
                     barrelSet.add(infinityBarrel);
                 }
-            } else if (Networks.getSupportedPluginManager().isFluffyMachines() && slimefunItem instanceof Barrel barrel) {
+            } else if (Networks.getSupportedPluginManager().isFluffyMachines()
+                    && slimefunItem instanceof Barrel barrel) {
                 final BlockMenu menu = StorageCacheUtils.getMenu(testLocation);
                 if (menu == null) {
                     continue;
@@ -657,14 +906,14 @@ public class NetworkRoot extends NetworkNode {
         }
 
         this.barrels = barrelSet;
-        NetworkRootLocateStorageEvent event = new NetworkRootLocateStorageEvent(this, StorageType.BARREL, true, true, Bukkit.isPrimaryThread());
+        NetworkRootLocateStorageEvent event =
+                new NetworkRootLocateStorageEvent(this, StorageType.BARREL, true, true, Bukkit.isPrimaryThread());
         Bukkit.getPluginManager().callEvent(event);
         return barrelSet;
     }
 
     @Deprecated
-    @Nonnull
-    public Map<StorageUnitData, Location> getCargoStorageUnitDatas() {
+    @NotNull public Map<StorageUnitData, Location> getCargoStorageUnitDatas() {
         if (this.cargoStorageUnitDatas != null) {
             return this.cargoStorageUnitDatas;
         }
@@ -698,123 +947,13 @@ public class NetworkRoot extends NetworkNode {
         }
 
         this.cargoStorageUnitDatas = dataSet;
-        NetworkRootLocateStorageEvent event = new NetworkRootLocateStorageEvent(this, StorageType.DRAWER, true, true, Bukkit.isPrimaryThread());
+        NetworkRootLocateStorageEvent event =
+                new NetworkRootLocateStorageEvent(this, StorageType.DRAWER, true, true, Bukkit.isPrimaryThread());
         Bukkit.getPluginManager().callEvent(event);
         return dataSet;
     }
 
-    @Nullable
-    private InfinityBarrel getInfinityBarrel(@Nonnull BlockMenu blockMenu, @Nonnull StorageUnit storageUnit) {
-        final ItemStack itemStack = blockMenu.getItemInSlot(16);
-        final var data = StorageCacheUtils.getBlock(blockMenu.getLocation());
-        if (data == null) {
-            return null;
-        }
-        final String storedString = data.getData("stored");
-
-        if (storedString == null) {
-            return null;
-        }
-
-        final int storedInt = Integer.parseInt(storedString);
-
-        if (itemStack == null || itemStack.getType() == Material.AIR) {
-            return null;
-        }
-
-
-        final StorageCache cache = storageUnit.getCache(blockMenu.getLocation());
-
-        if (cache == null) {
-            return null;
-        }
-
-        final ItemStack clone = itemStack.clone();
-        clone.setAmount(1);
-
-        return new InfinityBarrel(
-                blockMenu.getLocation(),
-                clone,
-                storedInt + itemStack.getAmount(),
-                cache
-        );
-    }
-
-    @Nullable
-    private FluffyBarrel getFluffyBarrel(@Nonnull BlockMenu blockMenu, @Nonnull Barrel barrel) {
-        Block block = blockMenu.getBlock();
-        ItemStack itemStack;
-        try {
-            itemStack = barrel.getStoredItem(block);
-        } catch (NullPointerException ignored) {
-            return null;
-        }
-
-        if (itemStack == null || itemStack.getType() == Material.AIR) {
-            return null;
-        }
-
-        final ItemStack clone = itemStack.clone();
-
-        int stored = barrel.getStored(block);
-
-        if (stored <= 0) {
-            return null;
-        }
-        int limit = barrel.getCapacity(block);
-        boolean voidExcess = Boolean.parseBoolean(StorageCacheUtils.getData(blockMenu.getLocation(), "trash"));
-
-        return new FluffyBarrel(
-                blockMenu.getLocation(),
-                clone,
-                stored,
-                limit,
-                voidExcess
-        );
-    }
-
-    @Nullable
-    private NetworkStorage getNetworkStorage(@Nonnull BlockMenu blockMenu) {
-
-        final QuantumCache cache = NetworkQuantumStorage.getCaches().get(blockMenu.getLocation());
-
-        if (cache == null || cache.getItemStack() == null) {
-            return null;
-        }
-
-        final ItemStack output = blockMenu.getItemInSlot(NetworkQuantumStorage.OUTPUT_SLOT);
-        final ItemStack itemStack = cache.getItemStack();
-        long storedInt = cache.getAmount();
-        if (output != null && output.getType() != Material.AIR && StackUtils.itemsMatch(cache, output)) {
-            storedInt = storedInt + output.getAmount();
-        }
-
-        if (itemStack == null || itemStack.getType() == Material.AIR) {
-            return null;
-        }
-
-        final ItemStack clone = itemStack.clone();
-        clone.setAmount(1);
-
-        return new NetworkStorage(
-                blockMenu.getLocation(),
-                clone,
-                storedInt
-        );
-    }
-
-    @Nullable
-    private StorageUnitData getCargoStorageUnitData(@Nonnull BlockMenu blockMenu) {
-        return NetworksDrawer.getStorageData(blockMenu.getLocation());
-    }
-
-    @Nullable
-    private StorageUnitData getCargoStorageUnitData(@Nonnull Location location) {
-        return NetworksDrawer.getStorageData(location);
-    }
-
-    @Nonnull
-    public Set<BlockMenu> getCellMenus() {
+    @NotNull public Set<BlockMenu> getCellMenus() {
         final Set<BlockMenu> menus = new HashSet<>();
         for (Location cellLocation : this.cells) {
             BlockMenu menu = StorageCacheUtils.getMenu(cellLocation);
@@ -825,8 +964,7 @@ public class NetworkRoot extends NetworkNode {
         return menus;
     }
 
-    @Nonnull
-    public Set<BlockMenu> getCrafterOutputs() {
+    @NotNull public Set<BlockMenu> getCrafterOutputs() {
         final Set<BlockMenu> menus = new HashSet<>();
         for (Location location : this.crafters) {
             BlockMenu menu = StorageCacheUtils.getMenu(location);
@@ -837,8 +975,7 @@ public class NetworkRoot extends NetworkNode {
         return menus;
     }
 
-    @Nonnull
-    public Set<BlockMenu> getGreedyBlockMenus() {
+    @NotNull public Set<BlockMenu> getGreedyBlockMenus() {
         final Set<BlockMenu> menus = new HashSet<>();
         for (Location location : this.greedyBlocks) {
             BlockMenu menu = StorageCacheUtils.getMenu(location);
@@ -849,8 +986,7 @@ public class NetworkRoot extends NetworkNode {
         return menus;
     }
 
-    @Nonnull
-    public Set<BlockMenu> getAdvancedGreedyBlockMenus() {
+    @NotNull public Set<BlockMenu> getAdvancedGreedyBlockMenus() {
         final Set<BlockMenu> menus = new HashSet<>();
         for (Location location : this.advancedGreedyBlocks) {
             BlockMenu menu = StorageCacheUtils.getMenu(location);
@@ -861,9 +997,11 @@ public class NetworkRoot extends NetworkNode {
         return menus;
     }
 
-    @Deprecated
-    @Nullable
-    public ItemStack getItemStack(@Nonnull ItemRequest request) {
+    @Warning(
+            reason =
+                    "This method is deprecated and will be removed in the future. Use getItemStack0(Location, ItemRequest) instead.")
+    @Deprecated(forRemoval = true)
+    @Nullable public ItemStack getItemStack(@NotNull ItemRequest request) {
         ItemStack stackToReturn = null;
 
         if (request.getAmount() <= 0) {
@@ -928,8 +1066,7 @@ public class NetworkRoot extends NetworkNode {
                 final ItemStack itemStack = blockMenu.getItemInSlot(slot);
                 if (itemStack == null
                         || itemStack.getType() == Material.AIR
-                        || !StackUtils.itemsMatch(request, itemStack)
-                ) {
+                        || !StackUtils.itemsMatch(request, itemStack)) {
                     continue;
                 }
 
@@ -961,10 +1098,9 @@ public class NetworkRoot extends NetworkNode {
             int[] slots = blockMenu.getPreset().getSlotsAccessedByItemTransport(ItemTransportFlow.WITHDRAW);
             for (int slot : slots) {
                 final ItemStack itemStack = blockMenu.getItemInSlot(slot);
-                if (itemStack == null || itemStack.getType() == Material.AIR || !StackUtils.itemsMatch(
-                        request,
-                        itemStack
-                )) {
+                if (itemStack == null
+                        || itemStack.getType() == Material.AIR
+                        || !StackUtils.itemsMatch(request, itemStack)) {
                     continue;
                 }
 
@@ -990,10 +1126,9 @@ public class NetworkRoot extends NetworkNode {
             int[] slots = blockMenu.getPreset().getSlotsAccessedByItemTransport(ItemTransportFlow.WITHDRAW);
             for (int slot : slots) {
                 final ItemStack itemStack = blockMenu.getItemInSlot(slot);
-                if (itemStack == null || itemStack.getType() == Material.AIR || !StackUtils.itemsMatch(
-                        request,
-                        itemStack
-                )) {
+                if (itemStack == null
+                        || itemStack.getType() == Material.AIR
+                        || !StackUtils.itemsMatch(request, itemStack)) {
                     continue;
                 }
 
@@ -1021,8 +1156,7 @@ public class NetworkRoot extends NetworkNode {
             final ItemStack itemStack = blockMenu.getItemInSlot(slots[0]);
             if (itemStack == null
                     || itemStack.getType() == Material.AIR
-                    || !StackUtils.itemsMatch(request, itemStack)
-            ) {
+                    || !StackUtils.itemsMatch(request, itemStack)) {
                 continue;
             }
 
@@ -1055,7 +1189,11 @@ public class NetworkRoot extends NetworkNode {
         return stackToReturn;
     }
 
-    public boolean contains(@Nonnull ItemRequest request) {
+    public boolean contains(@NotNull ItemStack itemStack) {
+        return contains(new ItemRequest(itemStack, 1));
+    }
+
+    public boolean contains(@NotNull ItemRequest request) {
 
         long found = 0;
 
@@ -1088,8 +1226,7 @@ public class NetworkRoot extends NetworkNode {
                 final ItemStack itemStack = blockMenu.getItemInSlot(slot);
                 if (itemStack == null
                         || itemStack.getType() == Material.AIR
-                        || !StackUtils.itemsMatch(request, itemStack)
-                ) {
+                        || !StackUtils.itemsMatch(request, itemStack)) {
                     continue;
                 }
 
@@ -1109,14 +1246,12 @@ public class NetworkRoot extends NetworkNode {
                 final ItemStack itemStack = itemContainer.getSampleDirectly();
                 if (itemStack == null
                         || itemStack.getType() == Material.AIR
-                        || !StackUtils.itemsMatch(request, itemStack)
-                ) {
+                        || !StackUtils.itemsMatch(request, itemStack)) {
                     continue;
                 }
 
                 int amount = itemContainer.getAmount();
                 found += amount;
-
 
                 // Escape if found all we need
                 if (found >= request.getAmount()) {
@@ -1131,8 +1266,7 @@ public class NetworkRoot extends NetworkNode {
                 final ItemStack itemStack = blockMenu.getItemInSlot(slot);
                 if (itemStack == null
                         || itemStack.getType() == Material.AIR
-                        || !StackUtils.itemsMatch(request, itemStack)
-                ) {
+                        || !StackUtils.itemsMatch(request, itemStack)) {
                     continue;
                 }
 
@@ -1151,8 +1285,7 @@ public class NetworkRoot extends NetworkNode {
             final ItemStack itemStack = blockMenu.getItemInSlot(slots[0]);
             if (itemStack == null
                     || itemStack.getType() == Material.AIR
-                    || !StackUtils.itemsMatch(request, itemStack)
-            ) {
+                    || !StackUtils.itemsMatch(request, itemStack)) {
                 continue;
             }
 
@@ -1171,8 +1304,7 @@ public class NetworkRoot extends NetworkNode {
                 final ItemStack itemStack = blockMenu.getItemInSlot(slot);
                 if (itemStack == null
                         || itemStack.getType() == Material.AIR
-                        || !StackUtils.itemsMatch(request, itemStack)
-                ) {
+                        || !StackUtils.itemsMatch(request, itemStack)) {
                     continue;
                 }
 
@@ -1188,7 +1320,7 @@ public class NetworkRoot extends NetworkNode {
         return false;
     }
 
-    public int getAmount(@Nonnull ItemStack itemStack) {
+    public int getAmount(@NotNull ItemStack itemStack) {
         long totalAmount = 0;
         for (BlockMenu blockMenu : getAdvancedGreedyBlockMenus()) {
             int[] slots = blockMenu.getPreset().getSlotsAccessedByItemTransport(ItemTransportFlow.WITHDRAW);
@@ -1242,7 +1374,7 @@ public class NetworkRoot extends NetworkNode {
         }
     }
 
-    public HashMap<ItemStack, Long> getAmount(@Nonnull Set<ItemStack> itemStacks) {
+    public @NotNull HashMap<ItemStack, Long> getAmount(@NotNull Set<ItemStack> itemStacks) {
         HashMap<ItemStack, Long> totalAmounts = new HashMap<>();
         for (BlockMenu menu : getAdvancedGreedyBlockMenus()) {
             int[] slots = menu.getPreset().getSlotsAccessedByItemTransport(ItemTransportFlow.WITHDRAW);
@@ -1251,7 +1383,8 @@ public class NetworkRoot extends NetworkNode {
                 if (inputSlotItem != null) {
                     for (ItemStack itemStack : itemStacks) {
                         if (StackUtils.itemsMatch(inputSlotItem, itemStack)) {
-                            totalAmounts.put(itemStack, totalAmounts.getOrDefault(itemStack, 0L) + inputSlotItem.getAmount());
+                            totalAmounts.put(
+                                    itemStack, totalAmounts.getOrDefault(itemStack, 0L) + inputSlotItem.getAmount());
                         }
                     }
                 }
@@ -1264,7 +1397,8 @@ public class NetworkRoot extends NetworkNode {
             if (inputSlotItem != null) {
                 for (ItemStack itemStack : itemStacks) {
                     if (StackUtils.itemsMatch(inputSlotItem, itemStack)) {
-                        totalAmounts.put(itemStack, totalAmounts.getOrDefault(itemStack, 0L) + inputSlotItem.getAmount());
+                        totalAmounts.put(
+                                itemStack, totalAmounts.getOrDefault(itemStack, 0L) + inputSlotItem.getAmount());
                     }
                 }
             }
@@ -1301,7 +1435,8 @@ public class NetworkRoot extends NetworkNode {
                 if (cellItem != null) {
                     for (ItemStack itemStack : itemStacks) {
                         if (StackUtils.itemsMatch(cellItem, itemStack)) {
-                            totalAmounts.put(itemStack, totalAmounts.getOrDefault(itemStack, 0L) + cellItem.getAmount());
+                            totalAmounts.put(
+                                    itemStack, totalAmounts.getOrDefault(itemStack, 0L) + cellItem.getAmount());
                         }
                     }
                 }
@@ -1311,8 +1446,11 @@ public class NetworkRoot extends NetworkNode {
         return totalAmounts;
     }
 
-    @Deprecated
-    public void addItemStack(@Nonnull ItemStack incoming) {
+    @Warning(
+            reason =
+                    "This method is deprecated and will be removed in the future. Use addItemStack0(Location, ItemStack) instead.")
+    @Deprecated(forRemoval = true)
+    public void addItemStack(@NotNull ItemStack incoming) {
         for (BlockMenu blockMenu : getAdvancedGreedyBlockMenus()) {
             final ItemStack template = blockMenu.getItemInSlot(AdvancedGreedyBlock.TEMPLATE_SLOT);
 
@@ -1339,7 +1477,6 @@ public class NetworkRoot extends NetworkNode {
             // Given we have found a match, it doesn't matter if the item moved or not, we will not bring it in
             return;
         }
-
 
         // Run for matching barrels
         for (BarrelIdentity barrelIdentity : getInputAbleBarrels()) {
@@ -1399,9 +1536,11 @@ public class NetworkRoot extends NetworkNode {
         }
     }
 
-    @Deprecated
-    @Nonnull
-    public List<ItemStack> getItemStacks(@Nonnull List<ItemRequest> itemRequests) {
+    @Warning(
+            reason =
+                    "This method is deprecated and will be removed in the future. Use getItemStacks0(Location, List<ItemRequest>) instead.")
+    @Deprecated(forRemoval = true)
+    @NotNull public List<ItemStack> getItemStacks(@NotNull List<ItemRequest> itemRequests) {
         List<ItemStack> retrievedItems = new ArrayList<>();
 
         for (ItemRequest request : itemRequests) {
@@ -1413,9 +1552,133 @@ public class NetworkRoot extends NetworkNode {
         return retrievedItems;
     }
 
-    @Nonnull
-    public Set<BarrelIdentity> getInputAbleBarrels() {
+    @NotNull public List<ItemStack> getItemStacks0(@NotNull Location location, @NotNull List<ItemRequest> itemRequests) {
+        List<ItemStack> retrievedItems = new ArrayList<>();
+        for (ItemRequest request : itemRequests) {
+            ItemStack retrieved = getItemStack0(location, request);
+            if (retrieved != null) {
+                retrievedItems.add(retrieved);
+            }
+        }
+        return retrievedItems;
+    }
 
+    @NotNull public List<BarrelIdentity> getBarrels(
+            @NotNull Predicate<BarrelIdentity> filter,
+            NetworkRootLocateStorageEvent.Strategy strategy,
+            boolean includeEmpty) {
+        final Set<Location> addedLocations = ConcurrentHashMap.newKeySet();
+        final List<BarrelIdentity> barrelSet = new ArrayList<>();
+
+        final Set<Location> monitor = new HashSet<>();
+        monitor.addAll(this.inputOnlyMonitors);
+        monitor.addAll(this.outputOnlyMonitors);
+        monitor.addAll(this.monitors);
+        for (Location cellLocation : monitor) {
+            final BlockFace face = NetworkDirectional.getSelectedFace(cellLocation);
+
+            if (face == null) {
+                continue;
+            }
+
+            final Location testLocation = cellLocation.clone().add(face.getDirection());
+
+            if (addedLocations.contains(testLocation)) {
+                continue;
+            } else {
+                addedLocations.add(testLocation);
+            }
+
+            final SlimefunItem slimefunItem = StorageCacheUtils.getSfItem(testLocation);
+
+            if (Networks.getSupportedPluginManager().isInfinityExpansion()
+                    && slimefunItem instanceof StorageUnit unit) {
+                final BlockMenu menu = StorageCacheUtils.getMenu(testLocation);
+                if (menu == null) {
+                    continue;
+                }
+                final InfinityBarrel infinityBarrel = getInfinityBarrel(menu, unit, includeEmpty);
+                if (infinityBarrel != null) {
+                    if (filter.test(infinityBarrel)) {
+                        barrelSet.add(infinityBarrel);
+                    }
+                }
+                continue;
+            }
+            if (Networks.getSupportedPluginManager().isFluffyMachines() && slimefunItem instanceof Barrel barrel) {
+                final BlockMenu menu = StorageCacheUtils.getMenu(testLocation);
+                if (menu == null) {
+                    continue;
+                }
+                final FluffyBarrel fluffyBarrel = getFluffyBarrel(menu, barrel, includeEmpty);
+                if (fluffyBarrel != null) {
+                    if (filter.test(fluffyBarrel)) {
+                        barrelSet.add(fluffyBarrel);
+                    }
+                }
+                continue;
+            }
+            if (slimefunItem instanceof NetworkQuantumStorage) {
+                final BlockMenu menu = StorageCacheUtils.getMenu(testLocation);
+                if (menu == null) {
+                    continue;
+                }
+                final NetworkStorage storage = getNetworkStorage(menu, includeEmpty);
+                if (storage != null) {
+                    if (filter.test(storage)) {
+                        barrelSet.add(storage);
+                    }
+                }
+            }
+        }
+
+        NetworkRootLocateStorageEvent event =
+                new NetworkRootLocateStorageEvent(this, StorageType.BARREL, strategy, Bukkit.isPrimaryThread());
+        Bukkit.getPluginManager().callEvent(event);
+        return barrelSet;
+    }
+
+    @NotNull public Map<StorageUnitData, Location> getCargoStorageUnitDatas(
+            NetworkRootLocateStorageEvent.Strategy strategy, boolean includeEmpty) {
+        final Set<Location> addedLocations = ConcurrentHashMap.newKeySet();
+        final Map<StorageUnitData, Location> dataSet = new HashMap<>();
+
+        final Set<Location> monitor = new HashSet<>();
+        monitor.addAll(this.inputOnlyMonitors);
+        monitor.addAll(this.outputOnlyMonitors);
+        monitor.addAll(this.monitors);
+        for (Location cellLocation : monitor) {
+            final BlockFace face = NetworkDirectional.getSelectedFace(cellLocation);
+
+            if (face == null) {
+                continue;
+            }
+
+            final Location testLocation = cellLocation.clone().add(face.getDirection());
+
+            if (addedLocations.contains(testLocation)) {
+                continue;
+            } else {
+                addedLocations.add(testLocation);
+            }
+
+            final SlimefunItem slimefunItem = StorageCacheUtils.getSfItem(testLocation);
+
+            if (slimefunItem instanceof NetworksDrawer) {
+                final StorageUnitData data = getCargoStorageUnitData(testLocation);
+                if (data != null) {
+                    dataSet.put(data, testLocation);
+                }
+            }
+        }
+
+        NetworkRootLocateStorageEvent event =
+                new NetworkRootLocateStorageEvent(this, StorageType.DRAWER, strategy, Bukkit.isPrimaryThread());
+        Bukkit.getPluginManager().callEvent(event);
+        return dataSet;
+    }
+
+    @NotNull public Set<BarrelIdentity> getInputAbleBarrels() {
         if (this.inputAbleBarrels != null) {
             return this.inputAbleBarrels;
         }
@@ -1443,7 +1706,8 @@ public class NetworkRoot extends NetworkNode {
 
             final SlimefunItem slimefunItem = StorageCacheUtils.getSfItem(testLocation);
 
-            if (Networks.getSupportedPluginManager().isInfinityExpansion() && slimefunItem instanceof StorageUnit unit) {
+            if (Networks.getSupportedPluginManager().isInfinityExpansion()
+                    && slimefunItem instanceof StorageUnit unit) {
                 final BlockMenu menu = StorageCacheUtils.getMenu(testLocation);
                 if (menu == null) {
                     continue;
@@ -1482,13 +1746,13 @@ public class NetworkRoot extends NetworkNode {
         for (BarrelIdentity storage : barrelSet) {
             this.mapInputAbleBarrels.put(storage.getLocation(), storage);
         }
-        NetworkRootLocateStorageEvent event = new NetworkRootLocateStorageEvent(this, StorageType.BARREL, true, false, Bukkit.isPrimaryThread());
+        NetworkRootLocateStorageEvent event =
+                new NetworkRootLocateStorageEvent(this, StorageType.BARREL, true, false, Bukkit.isPrimaryThread());
         Bukkit.getPluginManager().callEvent(event);
         return barrelSet;
     }
 
-    @Nonnull
-    public Set<BarrelIdentity> getOutputAbleBarrels() {
+    @NotNull public Set<BarrelIdentity> getOutputAbleBarrels() {
 
         if (this.outputAbleBarrels != null) {
             return this.outputAbleBarrels;
@@ -1517,7 +1781,8 @@ public class NetworkRoot extends NetworkNode {
 
             final SlimefunItem slimefunItem = StorageCacheUtils.getSfItem(testLocation);
 
-            if (Networks.getSupportedPluginManager().isInfinityExpansion() && slimefunItem instanceof StorageUnit unit) {
+            if (Networks.getSupportedPluginManager().isInfinityExpansion()
+                    && slimefunItem instanceof StorageUnit unit) {
                 final BlockMenu menu = StorageCacheUtils.getMenu(testLocation);
                 if (menu == null) {
                     continue;
@@ -1556,13 +1821,13 @@ public class NetworkRoot extends NetworkNode {
         for (BarrelIdentity storage : barrelSet) {
             this.mapOutputAbleBarrels.put(storage.getLocation(), storage);
         }
-        NetworkRootLocateStorageEvent event = new NetworkRootLocateStorageEvent(this, StorageType.BARREL, false, true, Bukkit.isPrimaryThread());
+        NetworkRootLocateStorageEvent event =
+                new NetworkRootLocateStorageEvent(this, StorageType.BARREL, false, true, Bukkit.isPrimaryThread());
         Bukkit.getPluginManager().callEvent(event);
         return barrelSet;
     }
 
-    @Nonnull
-    public Map<StorageUnitData, Location> getInputAbleCargoStorageUnitDatas() {
+    @NotNull public Map<StorageUnitData, Location> getInputAbleCargoStorageUnitDatas() {
         if (this.inputAbleCargoStorageUnitDatas != null) {
             return this.inputAbleCargoStorageUnitDatas;
         }
@@ -1603,13 +1868,13 @@ public class NetworkRoot extends NetworkNode {
         for (Map.Entry<StorageUnitData, Location> entry : dataSet.entrySet()) {
             mapInputAbleCargoStorageUnits.put(entry.getValue(), entry.getKey());
         }
-        NetworkRootLocateStorageEvent event = new NetworkRootLocateStorageEvent(this, StorageType.DRAWER, true, false, Bukkit.isPrimaryThread());
+        NetworkRootLocateStorageEvent event =
+                new NetworkRootLocateStorageEvent(this, StorageType.DRAWER, true, false, Bukkit.isPrimaryThread());
         Bukkit.getPluginManager().callEvent(event);
         return dataSet;
     }
 
-    @Nonnull
-    public Map<StorageUnitData, Location> getOutputAbleCargoStorageUnitDatas() {
+    @NotNull public Map<StorageUnitData, Location> getOutputAbleCargoStorageUnitDatas() {
         if (this.outputAbleCargoStorageUnitDatas != null) {
             return this.outputAbleCargoStorageUnitDatas;
         }
@@ -1650,7 +1915,8 @@ public class NetworkRoot extends NetworkNode {
         for (Map.Entry<StorageUnitData, Location> entry : dataSet.entrySet()) {
             mapOutputAbleCargoStorageUnits.put(entry.getValue(), entry.getKey());
         }
-        NetworkRootLocateStorageEvent event = new NetworkRootLocateStorageEvent(this, StorageType.DRAWER, false, true, Bukkit.isPrimaryThread());
+        NetworkRootLocateStorageEvent event =
+                new NetworkRootLocateStorageEvent(this, StorageType.DRAWER, false, true, Bukkit.isPrimaryThread());
         Bukkit.getPluginManager().callEvent(event);
         return dataSet;
     }
@@ -1672,48 +1938,45 @@ public class NetworkRoot extends NetworkNode {
         return true;
     }
 
-    @Nullable
-    public BarrelIdentity accessInputAbleBarrel(Location barrelLocation) {
+    @Nullable public BarrelIdentity accessInputAbleBarrel(Location barrelLocation) {
         return getMapInputAbleBarrels().get(barrelLocation);
     }
 
-    @Nullable
-    public BarrelIdentity accessOutputAbleBarrel(Location barrelLocation) {
+    @Nullable public BarrelIdentity accessOutputAbleBarrel(Location barrelLocation) {
         return getMapOutputAbleBarrels().get(barrelLocation);
     }
 
-    @Nullable
-    public StorageUnitData accessInputAbleDrawerData(Location drawerLocation) {
+    @Nullable public StorageUnitData accessInputAbleDrawerData(Location drawerLocation) {
         return accessInputAbleCargoStorageUnitData(drawerLocation);
     }
 
-    @Nullable
-    public StorageUnitData accessOutputAbleDrawerData(Location drawerLocation) {
+    @Nullable public StorageUnitData accessOutputAbleDrawerData(Location drawerLocation) {
         return accessOutputAbleCargoStorageUnitData(drawerLocation);
     }
 
-    @Nullable
-    public StorageUnitData accessInputAbleCargoStorageUnitData(Location storageUnitLocation) {
+    @Nullable public StorageUnitData accessInputAbleCargoStorageUnitData(Location storageUnitLocation) {
         return getMapInputAbleCargoStorageUnits().get(storageUnitLocation);
     }
 
-    @Nullable
-    public StorageUnitData accessOutputAbleCargoStorageUnitData(Location storageUnitLocation) {
+    @Nullable public StorageUnitData accessOutputAbleCargoStorageUnitData(Location storageUnitLocation) {
         return getMapOutputAbleCargoStorageUnits().get(storageUnitLocation);
     }
 
-    @Nullable
-    public ItemStack requestItem(@Nonnull Location accessor, @Nonnull ItemRequest request) {
+    @Nullable public ItemStack requestItem(@NotNull Location accessor, @NotNull ItemRequest request) {
         return getItemStack0(accessor, request);
     }
 
-    @Nullable
-    public ItemStack requestItem(@Nonnull Location accessor, @Nonnull ItemStack itemStack) {
+    @Nullable public ItemStack requestItem(@NotNull Location accessor, @NotNull ItemStack itemStack) {
         return requestItem(accessor, new ItemRequest(itemStack, itemStack.getAmount()));
     }
 
-    @Nullable
-    public ItemStack getItemStack0(@Nonnull Location accessor, @Nonnull ItemRequest request) {
+    public void tryRecord(@NotNull Location accessor, @NotNull ItemRequest request) {
+        if (recordFlow && itemFlowRecord != null) {
+            itemFlowRecord.addAction(accessor, request);
+        }
+    }
+
+    @Nullable public ItemStack getItemStack0(@NotNull Location accessor, @NotNull ItemRequest request) {
         ItemStack stackToReturn = null;
 
         if (request.getAmount() <= 0) {
@@ -1724,29 +1987,36 @@ public class NetworkRoot extends NetworkNode {
             return null;
         }
 
-        var m = getPersistentAccessHistory(accessor);
+        Map<Location, Integer> m = getPersistentAccessHistory(accessor);
         if (m != null) {
-            for (var entry : m.entrySet()) {
+            // Netex - Cache start
+            boolean found = false;
+            List<Location> misses = new ArrayList<>();
+            // Netex - Cache end
+            for (Map.Entry<Location, Integer> entry : m.entrySet()) {
                 // try cache first
                 BarrelIdentity barrelIdentity = accessOutputAbleBarrel(entry.getKey());
                 if (barrelIdentity != null) {
-                    //<editor-fold desc="do barrel">
+                    // <editor-fold desc="do barrel">
                     final ItemStack itemStack = barrelIdentity.getItemStack();
 
                     if (itemStack == null || !StackUtils.itemsMatch(request, itemStack)) {
-                        // Patch - Cache start
-                        addCacheMiss(accessor, entry.getKey());
-                        // Patch - Cache end
+                        // Netex - Cache start
+                        misses.add(entry.getKey());
+                        // Netex - Cache end
                         continue;
                     }
 
-                    // Patch - Cache start
+                    // Netex - Cache start
                     minusCacheMiss(accessor, entry.getKey());
-                    // Patch - Cache end
+                    found = true;
+                    // Netex - Cache end
 
                     boolean infinity = barrelIdentity instanceof InfinityBarrel;
                     final ItemStack fetched = barrelIdentity.requestItem(request);
-                    if (fetched == null || fetched.getType() == Material.AIR || (infinity && fetched.getAmount() == 1)) {
+                    if (fetched == null
+                            || fetched.getType() == Material.AIR
+                            || (infinity && fetched.getAmount() == 1)) {
                         continue;
                     }
 
@@ -1759,27 +2029,31 @@ public class NetworkRoot extends NetworkNode {
                     final int preserveAmount = infinity ? fetched.getAmount() - 1 : fetched.getAmount();
 
                     if (request.getAmount() <= preserveAmount) {
-                        // Patch - Reduce start
+                        // Netex - Reduce start
                         unreduceAccessOutput(accessor);
-                        // Patch - Reduce end
+                        // Netex - Reduce end
                         stackToReturn.setAmount(stackToReturn.getAmount() + request.getAmount());
                         fetched.setAmount(fetched.getAmount() - request.getAmount());
+                        // Netex - Record start
+                        tryRecord(accessor, request);
+                        // Netex - Record end
                         return stackToReturn;
                     } else {
                         stackToReturn.setAmount(stackToReturn.getAmount() + preserveAmount);
                         request.receiveAmount(preserveAmount);
                         fetched.setAmount(fetched.getAmount() - preserveAmount);
                     }
-                    //</editor-fold>
+                    // </editor-fold>
                 } else {
                     StorageUnitData data = accessOutputAbleCargoStorageUnitData(entry.getKey());
                     if (data != null) {
-                        //<editor-fold desc="do drawer">
+                        // <editor-fold desc="do drawer">
                         ItemStack take = data.requestItem0(accessor, request);
                         if (take != null) {
-                            // Patch - Cache start
+                            // Netex - Cache start
                             minusCacheMiss(accessor, entry.getKey());
-                            // Patch - Cache end
+                            found = true;
+                            // Netex - Cache end
 
                             if (stackToReturn == null) {
                                 stackToReturn = take.clone();
@@ -1789,38 +2063,49 @@ public class NetworkRoot extends NetworkNode {
                             request.receiveAmount(take.getAmount());
 
                             if (request.getAmount() <= 0) {
-                                // Patch - Reduce start
+                                // Netex - Reduce start
                                 unreduceAccessOutput(accessor);
-                                // Patch - Reduce end
+                                // Netex - Reduce end
+                                // Netex - Record start
+                                tryRecord(accessor, request);
+                                // Netex - Record end
                                 return stackToReturn;
                             }
                         } else {
-                            // Patch - Cache start
-                            addCacheMiss(accessor, entry.getKey());
-                            // Patch - Cache end
+                            // Netex - Cache start
+                            misses.add(entry.getKey());
+                            // Netex - Cache end
                         }
-                        //</editor-fold>
+                        // </editor-fold>
                     } else {
-                        // Patch - Cache start
-                        addCacheMiss(accessor, entry.getKey());
-                        // Patch - Cache end
+                        // Netex - Cache start
+                        misses.add(entry.getKey());
+                        // Netex - Cache end
                     }
                 }
             }
+
+            // Netex - Cache start
+            if (!found) {
+                for (Location miss : misses) {
+                    minusCacheMiss(accessor, miss);
+                }
+            }
+            // Netex - Cache end
         }
 
         // Barrels first
         for (BarrelIdentity barrelIdentity : getOutputAbleBarrels()) {
-            //<editor-fold desc="do barrel">
+            // <editor-fold desc="do barrel">
             final ItemStack itemStack = barrelIdentity.getItemStack();
 
             if (itemStack == null || !StackUtils.itemsMatch(request, itemStack)) {
                 continue;
             }
 
-            // Patch - Cache start
+            // Netex - Cache start
             addCountObservingAccessHistory(accessor, barrelIdentity.getLocation());
-            // Patch - Cache end
+            // Netex - Cache end
 
             boolean infinity = barrelIdentity instanceof InfinityBarrel;
             final ItemStack fetched = barrelIdentity.requestItem(request);
@@ -1837,28 +2122,31 @@ public class NetworkRoot extends NetworkNode {
             final int preserveAmount = infinity ? fetched.getAmount() - 1 : fetched.getAmount();
 
             if (request.getAmount() <= preserveAmount) {
-                // Patch - Reduce start
+                // Netex - Reduce start
                 unreduceAccessOutput(accessor);
-                // Patch - Reduce end
+                // Netex - Reduce end
                 stackToReturn.setAmount(stackToReturn.getAmount() + request.getAmount());
                 fetched.setAmount(fetched.getAmount() - request.getAmount());
+                // Netex - Record start
+                tryRecord(accessor, request);
+                // Netex - Record end
                 return stackToReturn;
             } else {
                 stackToReturn.setAmount(stackToReturn.getAmount() + preserveAmount);
                 request.receiveAmount(preserveAmount);
                 fetched.setAmount(fetched.getAmount() - preserveAmount);
             }
-            //</editor-fold>
+            // </editor-fold>
         }
 
         // Units
         for (StorageUnitData cache : getOutputAbleCargoStorageUnitDatas().keySet()) {
-            //<editor-fold desc="do drawer">
+            // <editor-fold desc="do drawer">
             ItemStack take = cache.requestItem0(accessor, request);
             if (take != null) {
-                // Patch - Cache start
+                // Netex - Cache start
                 addCountObservingAccessHistory(accessor, cache.getLastLocation());
-                // Patch - Cache end
+                // Netex - Cache end
                 if (stackToReturn == null) {
                     stackToReturn = take.clone();
                 } else {
@@ -1867,13 +2155,16 @@ public class NetworkRoot extends NetworkNode {
                 request.receiveAmount(take.getAmount());
 
                 if (request.getAmount() <= 0) {
-                    // Patch - Reduce start
+                    // Netex - Reduce start
                     unreduceAccessOutput(accessor);
-                    // Patch - Reduce end
+                    // Netex - Reduce end
+                    // Netex - Record start
+                    tryRecord(accessor, request);
+                    // Netex - Record end
                     return stackToReturn;
                 }
             }
-            //</editor-fold>
+            // </editor-fold>
         }
 
         // Cells
@@ -1883,8 +2174,7 @@ public class NetworkRoot extends NetworkNode {
                 final ItemStack itemStack = blockMenu.getItemInSlot(slot);
                 if (itemStack == null
                         || itemStack.getType() == Material.AIR
-                        || !StackUtils.itemsMatch(request, itemStack)
-                ) {
+                        || !StackUtils.itemsMatch(request, itemStack)) {
                     continue;
                 }
 
@@ -1898,12 +2188,15 @@ public class NetworkRoot extends NetworkNode {
                 }
 
                 if (request.getAmount() <= itemStack.getAmount()) {
-                    // Patch - Reduce start
+                    // Netex - Reduce start
                     unreduceAccessOutput(accessor);
-                    // Patch - Reduce end
+                    // Netex - Reduce end
                     // We can't take more than this stack. Level to request amount, remove items and then return
                     stackToReturn.setAmount(stackToReturn.getAmount() + request.getAmount());
                     itemStack.setAmount(itemStack.getAmount() - request.getAmount());
+                    // Netex - Record start
+                    tryRecord(accessor, request);
+                    // Netex - Record end
                     return stackToReturn;
                 } else {
                     // We can take more than what is here, consume before trying to take more
@@ -1919,10 +2212,9 @@ public class NetworkRoot extends NetworkNode {
             int[] slots = blockMenu.getPreset().getSlotsAccessedByItemTransport(ItemTransportFlow.WITHDRAW);
             for (int slot : slots) {
                 final ItemStack itemStack = blockMenu.getItemInSlot(slot);
-                if (itemStack == null || itemStack.getType() == Material.AIR || !StackUtils.itemsMatch(
-                        request,
-                        itemStack
-                )) {
+                if (itemStack == null
+                        || itemStack.getType() == Material.AIR
+                        || !StackUtils.itemsMatch(request, itemStack)) {
                     continue;
                 }
 
@@ -1933,11 +2225,14 @@ public class NetworkRoot extends NetworkNode {
                 }
 
                 if (request.getAmount() <= itemStack.getAmount()) {
-                    // Patch - Reduce start
+                    // Netex - Reduce start
                     unreduceAccessOutput(accessor);
-                    // Patch - Reduce end
+                    // Netex - Reduce end
                     stackToReturn.setAmount(stackToReturn.getAmount() + request.getAmount());
                     itemStack.setAmount(itemStack.getAmount() - request.getAmount());
+                    // Netex - Record start
+                    tryRecord(accessor, request);
+                    // Netex - Record end
                     return stackToReturn;
                 } else {
                     stackToReturn.setAmount(stackToReturn.getAmount() + itemStack.getAmount());
@@ -1951,10 +2246,9 @@ public class NetworkRoot extends NetworkNode {
             int[] slots = blockMenu.getPreset().getSlotsAccessedByItemTransport(ItemTransportFlow.WITHDRAW);
             for (int slot : slots) {
                 final ItemStack itemStack = blockMenu.getItemInSlot(slot);
-                if (itemStack == null || itemStack.getType() == Material.AIR || !StackUtils.itemsMatch(
-                        request,
-                        itemStack
-                )) {
+                if (itemStack == null
+                        || itemStack.getType() == Material.AIR
+                        || !StackUtils.itemsMatch(request, itemStack)) {
                     continue;
                 }
 
@@ -1965,11 +2259,14 @@ public class NetworkRoot extends NetworkNode {
                 }
 
                 if (request.getAmount() <= itemStack.getAmount()) {
-                    // Patch - Reduce start
+                    // Netex - Reduce start
                     unreduceAccessOutput(accessor);
-                    // Patch - Reduce end
+                    // Netex - Reduce end
                     stackToReturn.setAmount(stackToReturn.getAmount() + request.getAmount());
                     itemStack.setAmount(itemStack.getAmount() - request.getAmount());
+                    // Netex - Record start
+                    tryRecord(accessor, request);
+                    // Netex - Record end
                     return stackToReturn;
                 } else {
                     stackToReturn.setAmount(stackToReturn.getAmount() + itemStack.getAmount());
@@ -1985,8 +2282,7 @@ public class NetworkRoot extends NetworkNode {
             final ItemStack itemStack = blockMenu.getItemInSlot(slots[0]);
             if (itemStack == null
                     || itemStack.getType() == Material.AIR
-                    || !StackUtils.itemsMatch(request, itemStack)
-            ) {
+                    || !StackUtils.itemsMatch(request, itemStack)) {
                 continue;
             }
 
@@ -2000,12 +2296,15 @@ public class NetworkRoot extends NetworkNode {
             }
 
             if (request.getAmount() <= itemStack.getAmount()) {
-                // Patch - Reduce start
+                // Netex - Reduce start
                 unreduceAccessOutput(accessor);
-                // Patch - Reduce end
+                // Netex - Reduce end
                 // We can't take more than this stack. Level to request amount, remove items and then return
                 stackToReturn.setAmount(stackToReturn.getAmount() + request.getAmount());
                 itemStack.setAmount(itemStack.getAmount() - request.getAmount());
+                // Netex - Record start
+                tryRecord(accessor, request);
+                // Netex - Record end
                 return stackToReturn;
             } else {
                 // We can take more than what is here, consume before trying to take more
@@ -2018,81 +2317,111 @@ public class NetworkRoot extends NetworkNode {
         if (stackToReturn == null || stackToReturn.getAmount() == 0) {
             addTransportOutputMiss(accessor);
             return null;
-        } else {
-            // Patch - Reduce start
-            unreduceAccessOutput(accessor);
-            // Patch - Reduce end
         }
+
+        // Netex - Reduce start
+        unreduceAccessOutput(accessor);
+        // Netex - Reduce end
+        // Netex - Record start
+        tryRecord(accessor, request);
+        // Netex - Record end
 
         return stackToReturn;
     }
 
-    public void addItem(@Nonnull Location accessor, @Nonnull ItemStack incoming) {
+    public void addItem(@NotNull Location accessor, @NotNull ItemStack incoming) {
         addItemStack0(accessor, incoming);
     }
 
-    public void addItemStack0(@Nonnull Location accessor, @Nonnull ItemStack incoming) {
+    public void tryRecord(@NotNull Location accessor, @Nullable ItemStack before, int after) {
+        if (recordFlow && itemFlowRecord != null && before != null) {
+            itemFlowRecord.addAction(accessor, before, after);
+        }
+    }
+
+    public void addItemStack0(@NotNull Location accessor, @NotNull ItemStack incoming) {
         if (!allowAccessInput(accessor)) {
             return;
         }
 
+        ItemStack beforeItemStack = null;
+        if (recordFlow && itemFlowRecord != null) {
+            beforeItemStack = incoming.clone();
+        }
+
         int before = incoming.getAmount();
 
-        var m = getPersistentAccessHistory(accessor);
+        Map<Location, Integer> m = getPersistentAccessHistory(accessor);
         if (m != null) {
-            for (var entry : m.entrySet()) {
+            // Netex - Cache start
+            boolean found = false;
+            List<Location> misses = new ArrayList<>();
+            // Netex - Cache end
+            for (Map.Entry<Location, Integer> entry : m.entrySet()) {
                 BarrelIdentity barrelIdentity = accessInputAbleBarrel(entry.getKey());
                 if (barrelIdentity != null) {
-                    //<editor-fold desc="do barrel">
+                    // <editor-fold desc="do barrel">
                     if (StackUtils.itemsMatch(barrelIdentity, incoming)) {
-                        // Patch - Cache start
+                        // Netex - Cache start
                         minusCacheMiss(accessor, entry.getKey());
-                        // Patch - Cache end
+                        found = true;
+                        // Netex - Cache end
 
                         barrelIdentity.depositItemStack(incoming);
 
                         // All distributed, can escape
                         if (incoming.getAmount() == 0) {
-                            // Patch - Reduce start
+                            // Netex - Reduce start
                             unreduceAccessInput(accessor);
-                            // Patch - Reduce end
+                            // Netex - Reduce end
+                            // Netex - Record start
+                            tryRecord(accessor, beforeItemStack, 0);
+                            // Netex - Record end
                             return;
                         }
                     } else {
-                        // Patch - Cache start
-                        addCacheMiss(accessor, barrelIdentity.getLocation());
-                        // Patch - Cache end
+                        // Netex - Cache start
+                        misses.add(entry.getKey());
+                        // Netex - Cache end
                     }
-                    //</editor-fold>
+                    // </editor-fold>
                 } else {
                     StorageUnitData data = accessInputAbleCargoStorageUnitData(entry.getKey());
                     if (data != null) {
-                        // Patch - Cache start
+                        // Netex - Cache start
                         int before2 = incoming.getAmount();
-                        // Patch - Cache end
+                        // Netex - Cache end
                         data.depositItemStack0(accessor, incoming, true);
 
-                        // Patch - Cache start
-                        if (incoming.getAmount() == before2) {
-                            addCacheMiss(accessor, entry.getKey());
-                        } else {
+                        // Netex - Cache start
+                        if (incoming.getAmount() != before2) {
                             minusCacheMiss(accessor, entry.getKey());
+                            found = true;
+                        } else {
+                            misses.add(entry.getKey());
                         }
-                        // Patch - Cache end
+                        // Netex - Cache end
 
                         if (incoming.getAmount() == 0) {
-                            // Patch - Reduce start
+                            // Netex - Reduce start
                             unreduceAccessInput(accessor);
-                            // Patch - Reduce end
+                            // Netex - Reduce end
+                            // Netex - Record start
+                            tryRecord(accessor, beforeItemStack, 0);
+                            // Netex - Record end
                             return;
                         }
-                    } else {
-                        // Patch - Cache start
-                        addCacheMiss(accessor, entry.getKey());
-                        // Patch - Cache end
                     }
                 }
             }
+
+            // Netex - Cache start
+            if (!found) {
+                for (Location miss : misses) {
+                    addCacheMiss(accessor, miss);
+                }
+            }
+            // Netex - Cache end
         }
 
         for (BlockMenu blockMenu : getAdvancedGreedyBlockMenus()) {
@@ -2104,9 +2433,12 @@ public class NetworkRoot extends NetworkNode {
 
             blockMenu.markDirty();
             BlockMenuUtil.pushItem(blockMenu, incoming, ADVANCED_GREEDY_BLOCK_AVAILABLE_SLOTS);
-            // Patch - Reduce start
+            // Netex - Reduce start
             unreduceAccessInput(accessor);
-            // Patch - Reduce end
+            // Netex - Reduce end
+            // Netex - Record start
+            tryRecord(accessor, beforeItemStack, incoming.getAmount());
+            // Netex - Record end
             // Given we have found a match, it doesn't matter if the item moved or not, we will not bring it in
             return;
         }
@@ -2121,55 +2453,63 @@ public class NetworkRoot extends NetworkNode {
 
             blockMenu.markDirty();
             BlockMenuUtil.pushItem(blockMenu, incoming, GREEDY_BLOCK_AVAILABLE_SLOTS[0]);
-            // Patch - Reduce start
+            // Netex - Reduce start
             unreduceAccessInput(accessor);
-            // Patch - Reduce end
+            // Netex - Reduce end
+            // Netex - Record start
+            tryRecord(accessor, beforeItemStack, incoming.getAmount());
+            // Netex - Record end
             // Given we have found a match, it doesn't matter if the item moved or not, we will not bring it in
             return;
         }
 
-
         // Run for matching barrels
         for (BarrelIdentity barrelIdentity : getInputAbleBarrels()) {
-            //<editor-fold desc="do barrel">
+            // <editor-fold desc="do barrel">
             if (StackUtils.itemsMatch(barrelIdentity, incoming)) {
-                // Patch - Cache start
+                // Netex - Cache start
                 addCountObservingAccessHistory(accessor, barrelIdentity.getLocation());
-                // Patch - Cache end
+                // Netex - Cache end
 
                 barrelIdentity.depositItemStack(incoming);
 
                 // All distributed, can escape
                 if (incoming.getAmount() == 0) {
-                    // Patch - Reduce start
+                    // Netex - Reduce start
                     unreduceAccessInput(accessor);
-                    // Patch - Reduce end
+                    // Netex - Reduce end
+                    // Netex - Record start
+                    tryRecord(accessor, beforeItemStack, 0);
+                    // Netex - Record end
                     return;
                 }
             }
-            //</editor-fold>
+            // </editor-fold>
         }
 
         for (StorageUnitData cache : getInputAbleCargoStorageUnitDatas().keySet()) {
-            // Patch - Cache start
+            // Netex - Cache start
             int before2 = incoming.getAmount();
-            // Patch - Cache end
+            // Netex - Cache end
 
             cache.depositItemStack0(accessor, incoming, true);
 
-            // Patch - Cache start
+            // Netex - Cache start
             if (incoming.getAmount() != before2) {
-                // Patch - Reduce start
+                // Netex - Reduce start
                 unreduceAccessInput(accessor);
-                // Patch - Reduce end
+                // Netex - Reduce end
                 addCountObservingAccessHistory(accessor, cache.getLastLocation());
             }
-            // Patch - Cache end
+            // Netex - Cache end
 
             if (incoming.getAmount() == 0) {
-                // Patch - Reduce start
+                // Netex - Reduce start
                 unreduceAccessInput(accessor);
-                // Patch - Reduce end
+                // Netex - Reduce end
+                // Netex - Record start
+                tryRecord(accessor, beforeItemStack, 0);
+                // Netex - Record end
                 return;
             }
         }
@@ -2178,21 +2518,27 @@ public class NetworkRoot extends NetworkNode {
             blockMenu.markDirty();
             BlockMenuUtil.pushItem(blockMenu, incoming, CELL_AVAILABLE_SLOTS);
             if (incoming.getAmount() == 0) {
-                // Patch - Reduce start
+                // Netex - Reduce start
                 unreduceAccessInput(accessor);
-                // Patch - Reduce end
+                // Netex - Reduce end
+                // Netex - Record start
+                tryRecord(accessor, beforeItemStack, 0);
+                // Netex - Record end
                 return;
             }
         }
 
-        // Patch - Reduce start
+        // Netex - Reduce start
         if (before == incoming.getAmount()) {
             // No item moved, limit the accessor
             addTransportInputMiss(accessor);
         } else {
             unreduceAccessInput(accessor);
         }
-        // Patch - Reduce end
+        // Netex - Reduce end
+        // Netex - Record start
+        tryRecord(accessor, beforeItemStack, incoming.getAmount());
+        // Netex - Record end
     }
 
     public Map<Location, BarrelIdentity> getMapInputAbleBarrels() {
@@ -2201,7 +2547,7 @@ public class NetworkRoot extends NetworkNode {
         }
 
         this.mapInputAbleBarrels = new HashMap<>();
-        for (var barrel : getInputAbleBarrels()) {
+        for (BarrelIdentity barrel : getInputAbleBarrels()) {
             this.mapInputAbleBarrels.put(barrel.getLocation(), barrel);
         }
         return this.mapInputAbleBarrels;
@@ -2213,7 +2559,7 @@ public class NetworkRoot extends NetworkNode {
         }
 
         this.mapOutputAbleBarrels = new HashMap<>();
-        for (var barrel : getOutputAbleBarrels()) {
+        for (BarrelIdentity barrel : getOutputAbleBarrels()) {
             this.mapOutputAbleBarrels.put(barrel.getLocation(), barrel);
         }
         return this.mapOutputAbleBarrels;
@@ -2224,7 +2570,8 @@ public class NetworkRoot extends NetworkNode {
             return this.mapInputAbleCargoStorageUnits;
         }
 
-        for (var entry : getInputAbleCargoStorageUnitDatas().entrySet()) {
+        for (Map.Entry<StorageUnitData, Location> entry :
+                getInputAbleCargoStorageUnitDatas().entrySet()) {
             this.mapInputAbleCargoStorageUnits.put(entry.getValue(), entry.getKey());
         }
 
@@ -2236,15 +2583,16 @@ public class NetworkRoot extends NetworkNode {
             return this.mapOutputAbleCargoStorageUnits;
         }
 
-        for (var entry : getOutputAbleCargoStorageUnitDatas().entrySet()) {
+        for (Map.Entry<StorageUnitData, Location> entry :
+                getOutputAbleCargoStorageUnitDatas().entrySet()) {
             this.mapOutputAbleCargoStorageUnits.put(entry.getValue(), entry.getKey());
         }
 
         return this.mapOutputAbleCargoStorageUnits;
     }
 
-    public boolean allowAccessInput(@Nonnull Location accessor) {
-        var lastTime = reducedAccessOutputHistory.get(accessor);
+    public boolean allowAccessInput(@NotNull Location accessor) {
+        Long lastTime = reducedAccessOutputHistory.get(accessor);
         if (lastTime == null) {
             return true;
         } else {
@@ -2252,8 +2600,8 @@ public class NetworkRoot extends NetworkNode {
         }
     }
 
-    public boolean allowAccessOutput(@Nonnull Location accessor) {
-        var lastTime = reducedAccessInputHistory.get(accessor);
+    public boolean allowAccessOutput(@NotNull Location accessor) {
+        Long lastTime = reducedAccessInputHistory.get(accessor);
         if (lastTime == null) {
             return true;
         } else {
@@ -2261,41 +2609,41 @@ public class NetworkRoot extends NetworkNode {
         }
     }
 
-    public void addTransportInputMiss(@Nonnull Location location) {
+    public void addTransportInputMiss(@NotNull Location location) {
         transportMissInputHistory.merge(location, 1, (a, b) -> {
             if (a + b > transportMissThreshold) {
                 reduceAccessInput(location);
                 return null;
-            } else{
+            } else {
                 return a + b;
             }
         });
     }
 
-    public void addTransportOutputMiss(@Nonnull Location location) {
+    public void addTransportOutputMiss(@NotNull Location location) {
         transportMissOutputHistory.merge(location, 1, (a, b) -> {
             if (a + b > transportMissThreshold) {
                 reduceAccessOutput(location);
                 return null;
-            } else{
+            } else {
                 return a + b;
             }
         });
     }
 
-    public void reduceAccessInput(@Nonnull Location accessor) {
+    public void reduceAccessInput(@NotNull Location accessor) {
         reducedAccessInputHistory.put(accessor, System.currentTimeMillis());
     }
 
-    public void reduceAccessOutput(@Nonnull Location accessor) {
+    public void reduceAccessOutput(@NotNull Location accessor) {
         reducedAccessOutputHistory.put(accessor, System.currentTimeMillis());
     }
 
-    public void unreduceAccessInput(@Nonnull Location accessor) {
+    public void unreduceAccessInput(@NotNull Location accessor) {
         reducedAccessInputHistory.remove(accessor);
     }
 
-    public void unreduceAccessOutput(@Nonnull Location accessor) {
+    public void unreduceAccessOutput(@NotNull Location accessor) {
         reducedAccessOutputHistory.remove(accessor);
     }
 }

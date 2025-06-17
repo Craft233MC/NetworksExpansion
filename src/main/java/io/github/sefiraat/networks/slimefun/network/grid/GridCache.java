@@ -1,50 +1,47 @@
 package io.github.sefiraat.networks.slimefun.network.grid;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
+import org.jetbrains.annotations.Nullable;
 
 public class GridCache {
 
-    @Nonnull
-    private final List<ItemStack> pullItemHistory = new ArrayList<>();
+    @NotNull private final List<ItemStack> pullItemHistory = new ArrayList<>();
+
     @Setter
     @Getter
     private int page;
+
     @Setter
     @Getter
     private int maxPages;
-    @Nonnull
-    private DisplayMode displayMode;
-    @Nonnull
-    private SortOrder sortOrder;
-    @Nullable
-    private String filter;
 
-    public GridCache(int page, int maxPages, @Nonnull SortOrder sortOrder) {
+    @NotNull private DisplayMode displayMode;
+
+    @NotNull private SortOrder sortOrder;
+
+    @Nullable private String filter;
+
+    public GridCache(int page, int maxPages, @NotNull SortOrder sortOrder) {
         this.page = page;
         this.maxPages = maxPages;
         this.sortOrder = sortOrder;
         this.displayMode = DisplayMode.DISPLAY;
     }
 
-    @Nonnull
-    public SortOrder getSortOrder() {
+    @NotNull public SortOrder getSortOrder() {
         return this.sortOrder;
     }
 
-    public void setSortOrder(@Nonnull SortOrder sortOrder) {
+    public void setSortOrder(@NotNull SortOrder sortOrder) {
         this.sortOrder = sortOrder;
     }
 
-    @Nullable
-    public String getFilter() {
+    @Nullable public String getFilter() {
         return this.filter;
     }
 
@@ -52,8 +49,7 @@ public class GridCache {
         this.filter = filter;
     }
 
-    @Nonnull
-    public List<ItemStack> getPullItemHistory() {
+    @NotNull public List<ItemStack> getPullItemHistory() {
         return this.pullItemHistory;
     }
 
@@ -80,7 +76,26 @@ public class GridCache {
     public enum SortOrder {
         ALPHABETICAL,
         NUMBER,
-        ADDON
+        NUMBER_REVERSE,
+        ADDON;
+
+        public @NotNull SortOrder next() {
+            return switch (this) {
+                case ALPHABETICAL -> NUMBER;
+                case NUMBER -> NUMBER_REVERSE;
+                case NUMBER_REVERSE -> ADDON;
+                case ADDON -> ALPHABETICAL;
+            };
+        }
+
+        public @NotNull SortOrder previous() {
+            return switch (this) {
+                case ALPHABETICAL -> ADDON;
+                case NUMBER -> ALPHABETICAL;
+                case NUMBER_REVERSE -> NUMBER;
+                case ADDON -> NUMBER_REVERSE;
+            };
+        }
     }
 
     public enum DisplayMode {
