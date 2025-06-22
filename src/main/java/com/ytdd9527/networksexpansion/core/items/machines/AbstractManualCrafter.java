@@ -35,13 +35,14 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractManualCrafter extends SpecialSlimefunItem implements AdminDebuggable, EnergyNetComponent {
     public AbstractManualCrafter(
             @NotNull ItemGroup itemGroup,
             @NotNull SlimefunItemStack item,
             @NotNull RecipeType recipeType,
-            @NotNull ItemStack[] recipe) {
+            @NotNull ItemStack @NotNull [] recipe) {
         super(itemGroup, item, recipeType, recipe);
     }
 
@@ -166,7 +167,7 @@ public abstract class AbstractManualCrafter extends SpecialSlimefunItem implemen
                 continue;
             }
 
-            blockMenu.consumeItem(getInputSlots()[i], recipe.getInput()[i].getAmount());
+            BlockMenuUtil.consumeItem(blockMenu, getInputSlots()[i], recipe.getInput()[i].getAmount());
         }
 
         for (ItemStack item : recipe.getOutput()) {
@@ -261,7 +262,7 @@ public abstract class AbstractManualCrafter extends SpecialSlimefunItem implemen
 
                 if (StackUtils.itemsMatch(itemInSlot, entry.getKey())) {
                     int amount = Math.min(entry.getValue(), itemInSlot.getAmount());
-                    blockMenu.consumeItem(slot, amount);
+                    BlockMenuUtil.consumeItem(blockMenu, slot, amount);
 
                     wanted.put(entry.getKey(), wanted.get(entry.getKey()) - amount);
                 }
@@ -321,11 +322,11 @@ public abstract class AbstractManualCrafter extends SpecialSlimefunItem implemen
     public abstract Map<Integer, ItemStack> getBackgrounds();
 
     @SuppressWarnings("deprecation")
-    public abstract Map<Integer, ChestMenu.MenuClickHandler> getMenuClickHandlers();
+    public abstract @Nullable Map<Integer, ChestMenu.MenuClickHandler> getMenuClickHandlers();
 
     public abstract BlockPlaceHandler getMachineBlockPlaceHandler();
 
     public abstract BlockBreakHandler getMachineBlockBreakHandler();
 
-    public abstract BlockTicker getMachineBlockTicker();
+    public abstract @Nullable BlockTicker getMachineBlockTicker();
 }

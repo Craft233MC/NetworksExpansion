@@ -2,6 +2,7 @@ package io.github.sefiraat.networks.slimefun.network;
 
 import com.balugaq.netex.api.interfaces.HangingBlock;
 import com.tcoded.folialib.FoliaLib;
+import com.balugaq.netex.utils.Lang;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
 import com.ytdd9527.networksexpansion.core.items.SpecialSlimefunItem;
@@ -10,7 +11,6 @@ import io.github.sefiraat.networks.Networks;
 import io.github.sefiraat.networks.network.NetworkRoot;
 import io.github.sefiraat.networks.network.NodeDefinition;
 import io.github.sefiraat.networks.network.NodeType;
-import io.github.sefiraat.networks.utils.Theme;
 import io.github.thebusybiscuit.slimefun4.api.exceptions.IncompatibleItemHandlerException;
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 import javax.annotation.ParametersAreNonnullByDefault;
 import lombok.Getter;
 import me.mrCookieSlime.Slimefun.Objects.handlers.BlockTicker;
@@ -46,17 +47,18 @@ public abstract class NetworkObject extends SpecialSlimefunItem implements Admin
 
     static {
         Networks.getFoliaLib().getScheduler()
-            .runTimer(() -> {
-                while (!scheduledHangingTick.isEmpty()) {
-                    final Location location = scheduledHangingTick.poll();
-                    final Block block = location.getBlock();
-
-                    Networks.getFoliaLib().getScheduler().runAtLocation(
-                        location, wrappedTask -> HangingBlock.tickHangingBlocks(block)
-                    );
-                }
-            }, 1L,
-                Slimefun.getTickerTask().getTickRate());
+                .runTimer(
+                        () -> {
+                            while (!scheduledHangingTick.isEmpty()) {
+                                final Location location = scheduledHangingTick.poll();
+                                final Block block = location.getBlock();
+                                Networks.getFoliaLib().getScheduler().runAtLocation(
+                                    location, wrappedTask -> HangingBlock.tickHangingBlocks(block)
+                                );
+                            }
+                        },
+                        1L,
+                        Slimefun.getTickerTask().getTickRate());
     }
 
     private final NodeType nodeType;
@@ -67,7 +69,7 @@ public abstract class NetworkObject extends SpecialSlimefunItem implements Admin
             @NotNull ItemGroup itemGroup,
             @NotNull SlimefunItemStack item,
             @NotNull RecipeType recipeType,
-            ItemStack[] recipe,
+            ItemStack @NotNull [] recipe,
             NodeType type) {
         this(itemGroup, item, recipeType, recipe, null, type);
     }
@@ -76,7 +78,7 @@ public abstract class NetworkObject extends SpecialSlimefunItem implements Admin
             @NotNull ItemGroup itemGroup,
             @NotNull SlimefunItemStack item,
             @NotNull RecipeType recipeType,
-            ItemStack[] recipe,
+            ItemStack @NotNull [] recipe,
             ItemStack recipeOutput,
             NodeType type) {
         super(itemGroup, item, recipeType, recipe, recipeOutput);
@@ -90,7 +92,7 @@ public abstract class NetworkObject extends SpecialSlimefunItem implements Admin
                     }
 
                     @Override
-                    public void tick(@NotNull Block b, SlimefunItem item, SlimefunBlockData data) {
+                    public void tick(@NotNull Block b, SlimefunItem item, @NotNull SlimefunBlockData data) {
                         if (!firstTickLocations.contains(b.getLocation())) {
                             // Netex - Hanging patch start
                             Networks.getFoliaLib().getScheduler().runAtLocation(b.getLocation(), wrappedTask -> {
@@ -142,11 +144,13 @@ public abstract class NetworkObject extends SpecialSlimefunItem implements Admin
         scheduledHangingTick.add(block.getLocation());
     }
 
+    @OverridingMethodsMustInvokeSuper
     protected void preBreak(@NotNull BlockBreakEvent event) {
         NetworkRoot.removePersistentAccessHistory(event.getBlock().getLocation());
         NetworkRoot.removeCountObservingAccessHistory(event.getBlock().getLocation());
     }
 
+    @OverridingMethodsMustInvokeSuper
     protected void onBreak(@NotNull BlockBreakEvent event) {
         final Location location = event.getBlock().getLocation();
         final BlockMenu blockMenu = StorageCacheUtils.getMenu(location);
@@ -160,18 +164,23 @@ public abstract class NetworkObject extends SpecialSlimefunItem implements Admin
         Slimefun.getDatabaseManager().getBlockDataController().removeBlock(location);
     }
 
+    @OverridingMethodsMustInvokeSuper
     protected void postBreak(@NotNull BlockBreakEvent event) {}
 
+    @OverridingMethodsMustInvokeSuper
     @SuppressWarnings("unused")
     protected void prePlace(@NotNull BlockPlaceEvent event) {}
 
+    @SuppressWarnings("unused")
     protected void cancelPlace(@NotNull BlockPlaceEvent event) {
-        event.getPlayer().sendMessage(Theme.ERROR.getColor() + "This placement would connect two controllers!");
+        event.getPlayer().sendMessage(Lang.getString("messages.unsupported-operation.comprehensive.cancel_place"));
         event.setCancelled(true);
     }
 
+    @OverridingMethodsMustInvokeSuper
     protected void onPlace(@NotNull BlockPlaceEvent event) {}
 
+    @OverridingMethodsMustInvokeSuper
     @SuppressWarnings("unused")
     protected void postPlace(@NotNull BlockPlaceEvent event) {}
 

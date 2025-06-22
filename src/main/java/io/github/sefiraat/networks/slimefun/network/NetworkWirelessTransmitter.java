@@ -2,6 +2,7 @@ package io.github.sefiraat.networks.slimefun.network;
 
 import com.balugaq.netex.api.enums.FeedbackType;
 import com.balugaq.netex.api.helpers.Icon;
+import com.balugaq.netex.utils.BlockMenuUtil;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
 import io.github.sefiraat.networks.NetworkStorage;
@@ -52,7 +53,7 @@ public class NetworkWirelessTransmitter extends NetworkObject {
             @NotNull ItemGroup itemGroup,
             @NotNull SlimefunItemStack item,
             @NotNull RecipeType recipeType,
-            ItemStack[] recipe) {
+            ItemStack @NotNull [] recipe) {
         super(itemGroup, item, recipeType, recipe, NodeType.WIRELESS_TRANSMITTER);
         this.getSlotsToDrop().add(TEMPLATE_SLOT);
 
@@ -154,7 +155,7 @@ public class NetworkWirelessTransmitter extends NetworkObject {
 
             if (stackToPush != null) {
                 definition.getNode().getRoot().removeRootPower(REQUIRED_POWER);
-                linkedBlockMenu.pushItem(stackToPush, NetworkWirelessReceiver.RECEIVED_SLOT);
+                BlockMenuUtil.pushItem(linkedBlockMenu, stackToPush, NetworkWirelessReceiver.RECEIVED_SLOT);
                 sendFeedback(location, FeedbackType.WORKING);
                 if (definition.getNode().getRoot().isDisplayParticles()) {
                     final Location particleLocation =

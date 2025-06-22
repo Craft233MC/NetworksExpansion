@@ -2,6 +2,8 @@ package io.github.sefiraat.networks.slimefun.network;
 
 import com.balugaq.netex.api.enums.FeedbackType;
 import com.balugaq.netex.api.enums.MinecraftVersion;
+import com.balugaq.netex.api.interfaces.SoftCellBannable;
+import com.balugaq.netex.utils.InventoryUtil;
 import com.balugaq.netex.utils.Lang;
 import com.bgsoftware.wildchests.api.WildChestsAPI;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
@@ -34,7 +36,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class NetworkVanillaPusher extends NetworkDirectional {
+public class NetworkVanillaPusher extends NetworkDirectional implements SoftCellBannable {
 
     private static final int[] BACKGROUND_SLOTS = new int[] {
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 15, 16, 17, 18, 20, 22, 23, 24, 26, 27, 28, 30, 31, 33, 34, 35, 36,
@@ -52,7 +54,7 @@ public class NetworkVanillaPusher extends NetworkDirectional {
             @NotNull ItemGroup itemGroup,
             @NotNull SlimefunItemStack item,
             @NotNull RecipeType recipeType,
-            ItemStack[] recipe) {
+            ItemStack @NotNull [] recipe) {
         super(itemGroup, item, recipeType, recipe, NodeType.PUSHER);
         this.getSlotsToDrop().add(INPUT_SLOT);
     }
@@ -70,6 +72,10 @@ public class NetworkVanillaPusher extends NetworkDirectional {
 
         if (definition == null || definition.getNode() == null) {
             sendFeedback(blockMenu.getLocation(), FeedbackType.NO_NETWORK_FOUND);
+            return;
+        }
+
+        if (checkSoftCellBan(blockMenu.getLocation(), definition.getNode().getRoot())) {
             return;
         }
 
@@ -130,10 +136,10 @@ public class NetworkVanillaPusher extends NetworkDirectional {
         } else if (inventory instanceof BrewerInventory brewer) {
             handleBrewingStand(blockMenu, stack, brewer);
         } else if (wildChests && isChest) {
-            sendDebugMessage(block.getLocation(), Lang.getString("messages.debug.wildchests_test_failed"));
+            sendDebugMessage(block.getLocation(), Lang.getString("messages.debug.wildchests-test-failed"));
         } else if (InvUtils.fits(holder.getInventory(), stack)) {
-            sendDebugMessage(block.getLocation(), Lang.getString("messages.debug.wildchests_test_success"));
-            holder.getInventory().addItem(stack);
+            sendDebugMessage(block.getLocation(), Lang.getString("messages.debug.wildchests-test-success"));
+            InventoryUtil.addItem(holder.getInventory(), stack);
             stack.setAmount(0);
         }
     }

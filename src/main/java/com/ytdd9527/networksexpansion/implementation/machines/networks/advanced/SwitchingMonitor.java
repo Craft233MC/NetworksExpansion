@@ -1,6 +1,7 @@
 package com.ytdd9527.networksexpansion.implementation.machines.networks.advanced;
 
 import com.balugaq.netex.api.interfaces.HangingBlock;
+import com.balugaq.netex.utils.InventoryUtil;
 import com.ytdd9527.networksexpansion.implementation.ExpansionItems;
 import com.ytdd9527.networksexpansion.utils.TextUtil;
 import com.ytdd9527.networksexpansion.utils.databases.DataSource;
@@ -51,7 +52,7 @@ public class SwitchingMonitor extends NetworkObject implements HangingBlock, Pla
             @NotNull ItemGroup itemGroup,
             @NotNull SlimefunItemStack item,
             @NotNull RecipeType recipeType,
-            ItemStack[] recipe) {
+            ItemStack @NotNull [] recipe) {
         super(itemGroup, item, recipeType, recipe, NodeType.SWITCHING_MONITOR);
         HangingBlock.registerHangingBlock(this);
     }
@@ -199,15 +200,13 @@ public class SwitchingMonitor extends NetworkObject implements HangingBlock, Pla
             if (shift) {
                 ItemStack result = root.getItemStack0(attachon, new ItemRequest(template, amount));
                 if (result != null) {
-                    player.getInventory().addItem(result).values().forEach(item -> root.addItemStack0(attachon, item));
-                    player.updateInventory();
+                    InventoryUtil.addItem(player, result).values().forEach(item -> root.addItemStack0(attachon, item));
                 }
             } else {
                 ItemStack result = root.getItemStack0(
                         attachon, new ItemRequest(template, Math.min(amount, template.getMaxStackSize())));
                 if (result != null) {
-                    player.getInventory().addItem(result).values().forEach(item -> root.addItemStack0(attachon, item));
-                    player.updateInventory();
+                    InventoryUtil.addItem(player, result).values().forEach(item -> root.addItemStack0(attachon, item));
                 }
             }
         } else {
@@ -230,7 +229,7 @@ public class SwitchingMonitor extends NetworkObject implements HangingBlock, Pla
         }
     }
 
-    public int calculateSpace(@NotNull Player player, ItemStack template) {
+    public int calculateSpace(@NotNull Player player, @NotNull ItemStack template) {
         int amount = 0;
         for (ItemStack item : player.getInventory().getStorageContents()) {
             if (item == null || item.getType() == Material.AIR) {

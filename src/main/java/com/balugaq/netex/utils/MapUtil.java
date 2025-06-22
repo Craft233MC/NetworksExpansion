@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.experimental.UtilityClass;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -14,20 +15,22 @@ import org.bukkit.map.MapCanvas;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+@UtilityClass
 public class MapUtil {
-    public static final Map<String, MapView> mapViews = new HashMap<>();
+    public static final Map<String, MapView> MAP_VIEWS = new HashMap<>();
 
-    public static Pair<ItemStack, MapView> getImageItem(@NotNull String imagePath) {
+    public static @NotNull Pair<ItemStack, MapView> getImageItem(@NotNull String imagePath) {
         ItemStack map = new ItemStack(Material.FILLED_MAP);
         MapView view = apply(map, imagePath);
         return new Pair<>(map, view);
     }
 
-    public static MapView apply(@NotNull ItemStack map, @NotNull String imagePath) {
+    public static @Nullable MapView apply(@NotNull ItemStack map, @NotNull String imagePath) {
         if (map.getItemMeta() instanceof MapMeta meta) {
-            if (mapViews.containsKey(imagePath)) {
-                MapView view = mapViews.get(imagePath);
+            if (MAP_VIEWS.containsKey(imagePath)) {
+                MapView view = MAP_VIEWS.get(imagePath);
                 meta.setMapView(view);
                 map.setItemMeta(meta);
                 return view;
@@ -53,7 +56,7 @@ public class MapUtil {
             view.setScale(MapView.Scale.FARTHEST);
             view.setLocked(true);
             meta.setMapView(view);
-            mapViews.put(imagePath, view);
+            MAP_VIEWS.put(imagePath, view);
             meta.setScaling(true);
             meta.setColor(org.bukkit.Color.GREEN);
             map.setItemMeta(meta);
@@ -63,7 +66,7 @@ public class MapUtil {
         return null;
     }
 
-    public static BufferedImage resizeImage(BufferedImage original, int targetWidth, int targetHeight) {
+    public static @NotNull BufferedImage resizeImage(BufferedImage original, int targetWidth, int targetHeight) {
         BufferedImage resized = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = resized.createGraphics();
         g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);

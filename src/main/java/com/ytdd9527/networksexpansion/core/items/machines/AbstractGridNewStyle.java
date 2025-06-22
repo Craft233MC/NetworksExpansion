@@ -3,6 +3,7 @@ package com.ytdd9527.networksexpansion.core.items.machines;
 import com.balugaq.netex.api.algorithm.Sorters;
 import com.balugaq.netex.api.enums.FeedbackType;
 import com.balugaq.netex.api.helpers.Icon;
+import com.balugaq.netex.utils.InventoryUtil;
 import com.balugaq.netex.utils.Lang;
 import com.github.houbb.pinyin.constant.enums.PinyinStyleEnum;
 import com.github.houbb.pinyin.util.PinyinHelper;
@@ -20,6 +21,7 @@ import io.github.sefiraat.networks.slimefun.network.grid.GridCache;
 import io.github.sefiraat.networks.slimefun.network.grid.GridCache.DisplayMode;
 import io.github.sefiraat.networks.utils.StackUtils;
 import io.github.sefiraat.networks.utils.Theme;
+import io.github.thebusybiscuit.slimefun4.api.exceptions.IncompatibleItemHandlerException;
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup;
 import io.github.thebusybiscuit.slimefun4.api.items.ItemSetting;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
@@ -35,6 +37,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import javax.annotation.ParametersAreNonnullByDefault;
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ClickAction;
 import me.mrCookieSlime.Slimefun.Objects.handlers.BlockTicker;
@@ -68,7 +71,7 @@ public abstract class AbstractGridNewStyle extends NetworkObject {
             @NotNull ItemGroup itemGroup,
             @NotNull SlimefunItemStack item,
             @NotNull RecipeType recipeType,
-            ItemStack[] recipe) {
+            ItemStack @NotNull [] recipe) {
         this(itemGroup, item, recipeType, recipe, NodeType.GRID);
     }
 
@@ -76,7 +79,7 @@ public abstract class AbstractGridNewStyle extends NetworkObject {
             @NotNull ItemGroup itemGroup,
             @NotNull SlimefunItemStack item,
             @NotNull RecipeType recipeType,
-            ItemStack[] recipe,
+            ItemStack @NotNull [] recipe,
             NodeType type) {
         super(itemGroup, item, recipeType, recipe, type);
 
@@ -110,6 +113,11 @@ public abstract class AbstractGridNewStyle extends NetworkObject {
             @Override
             public void uniqueTick() {
                 tick = tick <= 1 ? tickRate.getValue() : tick - 1;
+            }
+
+            @Override
+            public @NotNull Optional<IncompatibleItemHandlerException> validate(SlimefunItem item) {
+                return Optional.empty();
             }
         });
     }
@@ -462,7 +470,7 @@ public abstract class AbstractGridNewStyle extends NetworkObject {
             return;
         }
 
-        HashMap<Integer, ItemStack> remnant = player.getInventory().addItem(requestingStack);
+        HashMap<Integer, ItemStack> remnant = InventoryUtil.addItem(player, requestingStack);
         requestingStack = remnant.values().stream().findFirst().orElse(null);
         if (requestingStack != null) {
             definition.getNode().getRoot().addItemStack0(menu.getLocation(), requestingStack);
@@ -551,7 +559,7 @@ public abstract class AbstractGridNewStyle extends NetworkObject {
         return Icon.FILTER_STACK;
     }
 
-    public ItemStack getModeStack(@NotNull GridCache gridCache) {
+    public @NotNull ItemStack getModeStack(@NotNull GridCache gridCache) {
         return getModeStack(gridCache.getDisplayMode());
     }
 
