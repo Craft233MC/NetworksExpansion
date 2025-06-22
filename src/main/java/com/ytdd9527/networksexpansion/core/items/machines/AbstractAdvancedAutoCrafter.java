@@ -2,6 +2,8 @@ package com.ytdd9527.networksexpansion.core.items.machines;
 
 import com.balugaq.netex.api.enums.FeedbackType;
 import com.balugaq.netex.api.helpers.Icon;
+import com.balugaq.netex.api.interfaces.SoftCellBannable;
+import com.balugaq.netex.utils.BlockMenuUtil;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
 import io.github.sefiraat.networks.NetworkStorage;
 import io.github.sefiraat.networks.network.NetworkRoot;
@@ -38,7 +40,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class AbstractAdvancedAutoCrafter extends NetworkObject {
+public abstract class AbstractAdvancedAutoCrafter extends NetworkObject implements SoftCellBannable {
     private static final int[] BACKGROUND_SLOTS = new int[] {3, 4, 5, 12, 13, 14, 21, 22, 23};
     private static final int[] BLUEPRINT_BACKGROUND = new int[] {0, 1, 2, 9, 11, 18, 19, 20};
     private static final int[] OUTPUT_BACKGROUND = new int[] {6, 7, 8, 15, 17, 24, 25, 26};
@@ -51,7 +53,7 @@ public abstract class AbstractAdvancedAutoCrafter extends NetworkObject {
             @NotNull ItemGroup itemGroup,
             @NotNull SlimefunItemStack item,
             @NotNull RecipeType recipeType,
-            ItemStack[] recipe,
+            ItemStack @NotNull [] recipe,
             int chargePerCraft,
             boolean withholding) {
         super(itemGroup, item, recipeType, recipe, NodeType.CRAFTER);
@@ -92,6 +94,10 @@ public abstract class AbstractAdvancedAutoCrafter extends NetworkObject {
         }
 
         final NetworkRoot root = definition.getNode().getRoot();
+
+        if (checkSoftCellBan(blockMenu.getLocation(), root)) {
+            return;
+        }
 
         if (!this.withholding) {
             final ItemStack stored = blockMenu.getItemInSlot(OUTPUT_SLOT);
@@ -270,7 +276,7 @@ public abstract class AbstractAdvancedAutoCrafter extends NetworkObject {
             return false;
         }
 
-        blockMenu.pushItem(crafted, OUTPUT_SLOT);
+        BlockMenuUtil.pushItem(blockMenu, crafted, OUTPUT_SLOT);
         sendFeedback(blockMenu.getLocation(), FeedbackType.WORKING);
         return true;
     }

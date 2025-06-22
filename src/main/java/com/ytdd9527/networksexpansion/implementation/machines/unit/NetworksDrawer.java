@@ -5,8 +5,8 @@ import com.balugaq.netex.api.data.StorageUnitData;
 import com.balugaq.netex.api.enums.QuickTransferMode;
 import com.balugaq.netex.api.enums.StorageUnitType;
 import com.balugaq.netex.api.helpers.Icon;
-import com.balugaq.netex.api.interfaces.Configurable;
 import com.balugaq.netex.api.interfaces.ModelledItem;
+import com.balugaq.netex.utils.InventoryUtil;
 import com.balugaq.netex.utils.Lang;
 import com.jeff_media.morepersistentdatatypes.DataType;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
@@ -68,7 +68,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("deprecation")
-public class NetworksDrawer extends SpecialSlimefunItem implements DistinctiveItem, ModelledItem, Configurable {
+public class NetworksDrawer extends SpecialSlimefunItem implements DistinctiveItem, ModelledItem {
     private static final boolean DEFAULT_USE_SPECIAL_MODEL = false;
     private static final Map<Location, StorageUnitData> storages = new HashMap<>();
     private static final Map<Location, QuickTransferMode> quickTransferModes = new HashMap<>();
@@ -439,8 +439,7 @@ public class NetworksDrawer extends SpecialSlimefunItem implements DistinctiveIt
                                         Math.min(requestedItemStack.getAmount(), requestedItemStack.getMaxStackSize());
                                 final ItemStack clone = StackUtils.getAsQuantity(requestedItemStack, max);
                                 requestedItemStack.setAmount(requestedItemStack.getAmount() - max);
-                                final HashMap<Integer, ItemStack> remnant =
-                                        player.getInventory().addItem(clone);
+                                final HashMap<Integer, ItemStack> remnant = InventoryUtil.addItem(player, clone);
                                 remnant.values().stream()
                                         .findFirst()
                                         .ifPresent(leftOver -> data.depositItemStack0(l, leftOver, false));

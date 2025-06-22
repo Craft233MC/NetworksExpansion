@@ -3,6 +3,7 @@ package io.github.sefiraat.networks.commands;
 import com.balugaq.netex.api.data.ItemContainer;
 import com.balugaq.netex.api.data.StorageUnitData;
 import com.balugaq.netex.api.enums.ErrorType;
+import com.balugaq.netex.utils.InventoryUtil;
 import com.balugaq.netex.utils.Lang;
 import com.balugaq.netex.utils.MapUtil;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
@@ -15,6 +16,7 @@ import io.github.bakedlibs.dough.collections.Pair;
 import io.github.bakedlibs.dough.skins.PlayerHead;
 import io.github.bakedlibs.dough.skins.PlayerSkin;
 import io.github.sefiraat.networks.Networks;
+import io.github.sefiraat.networks.network.NetworkRoot;
 import io.github.sefiraat.networks.network.stackcaches.BlueprintInstance;
 import io.github.sefiraat.networks.network.stackcaches.ItemRequest;
 import io.github.sefiraat.networks.network.stackcaches.QuantumCache;
@@ -45,9 +47,12 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import net.guizhanss.guizhanlib.minecraft.helper.inventory.ItemStackHelper;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -937,7 +942,7 @@ public class NetworksMain implements TabExecutor {
                 return;
             }
 
-            player.getInventory().addItem(StackUtils.getAsQuantity(stack, 1));
+            InventoryUtil.addItem(player, StackUtils.getAsQuantity(stack, 1));
         }
     }
 
@@ -1375,19 +1380,98 @@ public class NetworksMain implements TabExecutor {
                     return true;
                 }
 
-                    // for test
                 case "map" -> {
-                    if (player.isOp()) {
-                        String filePath = args[1];
-                        Pair<ItemStack, MapView> pair = MapUtil.getImageItem(filePath);
-                        if (pair != null) {
-                            ItemStack first = pair.getFirstValue();
-                            MapView second = pair.getSecondValue();
-                            if (first != null && second != null) {
-                                player.getInventory().addItem(first);
-                                player.sendMap(second);
-                            }
+                    if (!player.hasPermission("networks.admin") && !player.hasPermission("networks.commands.map")) {
+                        player.sendMessage(getErrorMessage(ErrorType.NO_PERMISSION));
+                        return true;
+                    }
+
+                    if (args.length == 1) {
+                        player.sendMessage(getErrorMessage(ErrorType.MISSING_REQUIRED_ARGUMENT, "filePath"));
+                        return true;
+                    }
+
+                    String filePath = args[1];
+                    Pair<ItemStack, MapView> pair = MapUtil.getImageItem(filePath);
+                    if (pair != null) {
+                        ItemStack first = pair.getFirstValue();
+                        MapView second = pair.getSecondValue();
+                        if (second == null) {
+                            player.sendMessage(getErrorMessage(ErrorType.INVALID_REQUIRED_ARGUMENT, "filePath"));
+                            return true;
                         }
+
+                        if (first != null) {
+                            InventoryUtil.addItem(player, first);
+                            player.sendMap(second);
+                        }
+                    }
+                }
+
+                case "cch" -> {
+                    if (!player.hasPermission("networks.admin") && !player.hasPermission("networks.commands.cch")) {
+                        player.sendMessage(getErrorMessage(ErrorType.NO_PERMISSION));
+                        return true;
+                    }
+
+                    if (args.length == 1) {
+                        player.sendMessage(getErrorMessage(ErrorType.MISSING_REQUIRED_ARGUMENT, "cchName"));
+                        return true;
+                    }
+
+                    final Block targetBlock = player.getTargetBlockExact(8, FluidCollisionMode.NEVER);
+                    if (targetBlock == null || targetBlock.getType() == Material.AIR) {
+                        player.sendMessage(Lang.getString("messages.commands.must-admin-debuggable"));
+                        return true;
+                    }
+
+                    final SlimefunItem slimefunItem = StorageCacheUtils.getSfItem(targetBlock.getLocation());
+                    if (slimefunItem == null) {
+                        player.sendMessage(Lang.getString("messages.commands.must-admin-debuggable"));
+                        return true;
+                    }
+
+                    if (!(slimefunItem instanceof AdminDebuggable debuggable)) {
+                        player.sendMessage(Lang.getString("messages.commands.must-admin-debuggable"));
+                        return true;
+                    }
+
+                    Location lookingAt = targetBlock.getLocation();
+                    String cchName = args[1];
+                    Map map;
+                    switch (cchName) {
+                        case "l" -> {
+                            // list all
+                            player.sendMessage("l", "oah", "pah", "tmih", "tmoh", "caih", "caoh");
+                            return true;
+                        }
+                        case "oah" -> map = NetworkRoot.observingAccessHistory;
+                        case "pah" -> map = NetworkRoot.persistentAccessHistory;
+                        case "tmih" -> map = NetworkRoot.transportMissInputHistory;
+                        case "tmoh" -> map = NetworkRoot.transportMissOutputHistory;
+                        case "caih" -> map = NetworkRoot.controlledAccessInputHistory;
+                        case "caoh" -> map = NetworkRoot.controlledAccessOutputHistory;
+                        default -> {
+                            player.sendMessage(getErrorMessage(ErrorType.INVALID_REQUIRED_ARGUMENT, "cchName"));
+                            return true;
+                        }
+                    }
+
+                    Object value = map.get(lookingAt);
+                    if (value == null) {
+                        player.sendMessage("no cache yet.");
+                    }
+
+                    if (value instanceof Map<?,?>) {
+                        player.sendMessage("缓存: " + cchName);
+                        Map<Location, Integer> locations = (Map<Location, Integer>) value;
+                        Map<String, Integer> formatted = locations.entrySet().stream().map(e -> Map.entry(ChatColor.translateAlternateColorCodes('&', StorageCacheUtils.getSfItem(e.getKey()).getItemName()), e.getValue())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                        for (Map.Entry<String, Integer> entry : formatted.entrySet()) {
+                            player.sendMessage(entry.getKey() + ": " + entry.getValue());
+                        }
+                    } else if (value instanceof Number n) {
+                        player.sendMessage("缓存: " + cchName);
+                        player.sendMessage("值: " + n.intValue());
                     }
                 }
 
@@ -1557,7 +1641,7 @@ public class NetworksMain implements TabExecutor {
         return new ArrayList<>();
     }
 
-    public String getErrorMessage(@NotNull ErrorType errorType) {
+    public @NotNull String getErrorMessage(@NotNull ErrorType errorType) {
         return getErrorMessage(errorType, null);
     }
 
