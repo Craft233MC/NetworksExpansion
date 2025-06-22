@@ -12,7 +12,7 @@ public class NetworkRootReadyEvent extends Event {
     private final NetworkRoot root;
 
     public NetworkRootReadyEvent(NetworkRoot root) {
-        super(true);
+        super(false);
         this.root = root;
     }
 
