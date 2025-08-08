@@ -28,28 +28,6 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
-      - name: Download Slimefun from artifact
-        uses: dawidd6/action-download-artifact@v9
-        with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
-          workflow: dev-ci.yml
-          workflow_conclusion: success
-          repo: Craft233MC/Slimefun4
-          use_unzip: true
-      - name: Download GuizhanLibPlugin from artifact
-        uses: dawidd6/action-download-artifact@v9
-        with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
-          workflow: ci.yml
-          workflow_conclusion: success
-          repo: Craft233MC/GuizhanLibPlugin
-          use_unzip: true
-      - name: Place local depends
-        run: |
-          export SF=$(ls | grep Slimefun)
-          export GZP=$(ls | grep Guizhan)
-          mvn install:install-file -Dfile=${SF}/${SF} -DgroupId=top.craft233 -DartifactId=Slimefun4 -Dversion=b39097e015 -Dpackaging=jar
-          mvn install:install-file -Dfile=${GZP}/${GZP} -DgroupId=top.craft233 -DartifactId=GuizhanLibPlugin -Dversion=1.7.6 -Dpackaging=jar
       - name: Build with Maven
         run: mvn package --file pom.xml
       - name: select jar
