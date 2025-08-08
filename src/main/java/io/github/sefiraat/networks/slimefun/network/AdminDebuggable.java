@@ -4,14 +4,15 @@ import com.balugaq.netex.utils.Lang;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
 import io.github.sefiraat.networks.Networks;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.collections.Pair;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 public interface AdminDebuggable {
     Queue<Pair<Location, String>> DEBUG_QUEUE = new ConcurrentLinkedQueue<>();
@@ -51,12 +52,12 @@ public interface AdminDebuggable {
 
     static void sendDebugMessage1(@NotNull Location location, @NotNull String string) {
         final String locationString = "W[" + location.getWorld().getName() + "] " + "X["
-                + location.getBlockX() + "] " + "Y["
-                + location.getBlockY() + "] " + "Z["
-                + location.getBlockZ() + "] ";
+            + location.getBlockX() + "] " + "Y["
+            + location.getBlockY() + "] " + "Z["
+            + location.getBlockZ() + "] ";
         Networks.getInstance()
-                .getLogger()
-                .log(Level.INFO, String.format(Lang.getString("messages.debug.info"), locationString, string));
+            .getLogger()
+            .log(Level.INFO, String.format(Lang.getString("messages.debug.info"), locationString, string));
         for (Player player : VIEWERS) {
             if (player.isOnline()) {
                 player.sendMessage(String.format(Lang.getString("messages.debug.viewer-info"), locationString, string));

@@ -4,16 +4,17 @@ import com.balugaq.netex.api.data.StorageUnitData;
 import com.balugaq.netex.api.enums.StorageUnitType;
 import com.balugaq.netex.utils.Lang;
 import io.github.sefiraat.networks.Networks;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 public class DataStorage {
 
@@ -51,7 +52,8 @@ public class DataStorage {
                 l, wrappedTask -> {runnable.run();});
     }
 
-    @NotNull public static Optional<StorageUnitData> getCachedStorageData(int id) {
+    @NotNull
+    public static Optional<StorageUnitData> getCachedStorageData(int id) {
         return cache.getOrDefault(id, Optional.empty());
     }
 
@@ -60,9 +62,9 @@ public class DataStorage {
     }
 
     public static synchronized @NotNull StorageUnitData createStorageUnitData(
-            @NotNull OfflinePlayer owner, StorageUnitType sizeType, Location placedLocation) {
+        @NotNull OfflinePlayer owner, StorageUnitType sizeType, Location placedLocation) {
         StorageUnitData re = new StorageUnitData(
-                dataSource.getNextContainerId(), owner.getUniqueId().toString(), sizeType, true, placedLocation);
+            dataSource.getNextContainerId(), owner.getUniqueId().toString(), sizeType, true, placedLocation);
 
         dataSource.saveNewStorageData(re);
         cache.put(re.getId(), Optional.of(re));
@@ -132,7 +134,7 @@ public class DataStorage {
 
     static @NotNull String formatLocation(@NotNull Location l) {
         return Objects.requireNonNull(l.getWorld()).getUID() + ";" + l.getBlockX() + ";" + l.getBlockY() + ";"
-                + l.getBlockZ();
+            + l.getBlockZ();
     }
 
     private static void loadContainer(int id) {

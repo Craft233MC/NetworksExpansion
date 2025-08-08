@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.ytdd9527.networksexpansion</groupId>
     <artifactId>NetworksExpansion</artifactId>
-    <version>Special-Version-40</version>
+    <version>Special-Version-43</version>
 
     <distributionManagement>
         <repository>
@@ -179,10 +179,10 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
-        <repository>
-            <id>sonatype-oss-snapshots1</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
-        </repository>
+        <!--        <repository>-->
+        <!--            <id>sonatype-oss-snapshots1</id>-->
+        <!--            <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>-->
+        <!--        </repository>-->
         <repository>
             <id>codemc-repo</id>
             <url>https://repo.codemc.org/repository/maven-public/</url>
@@ -196,6 +196,10 @@
             <id>tcoded-releases</id>
             <url>https://repo.tcoded.com/releases</url>
         </repository>
+        <repository>
+            <id>neokoni-repo</id>
+            <url>https://repo.neokoni.ink/snapshots/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -208,9 +212,9 @@
         </dependency>
 
         <dependency>
-            <groupId>top.craft233</groupId>
-            <artifactId>Slimefun4</artifactId>
-            <version>b39097e015</version>
+            <groupId>com.github.slimefun</groupId>
+            <artifactId>Slimefun</artifactId>
+            <version>DEV-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -334,9 +338,9 @@
         </dependency>
         <!-- Chinese localization library -->
         <dependency>
-            <groupId>top.craft233</groupId>
+            <groupId>net.guizhanss</groupId>
             <artifactId>GuizhanLibPlugin</artifactId>
-            <version>1.7.6</version>
+            <version>2.3.0</version>
             <scope>provided</scope>
         </dependency>
         <!-- Useful Library -->
