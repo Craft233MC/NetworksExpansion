@@ -58,7 +58,7 @@ public abstract class SpecialSlimefunItem extends SlimefunItem implements Feedba
             if (delay > 0) {
                 Networks.getFoliaLib()
                     .getScheduler()
-                    .runTaskLater(
+                    .runLater(
                         wrappedTask -> {
                             (recipeItem).registerDefaultRecipes();
                             MachineRecipeFactory.getInstance().initAdvancedRecipeMap(this.getId());
