@@ -56,6 +56,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+@SuppressWarnings("DuplicatedCode")
 public class AdvancedVacuum extends NetworkObject {
     public static final Map<Location, FilterMode> CACHE_FILTER_MODE = new HashMap<>();
     public static final Map<Location, MatchMode> CACHE_MATCH_MODE = new HashMap<>();
@@ -87,6 +88,10 @@ public class AdvancedVacuum extends NetworkObject {
         addItemSetting(this.tickRate, this.vacuumRange);
 
         for (int inputSlot : INPUT_SLOTS) {
+            this.getSlotsToDrop().add(inputSlot);
+        }
+
+        for (int inputSlot : FILTER_SLOTS) {
             this.getSlotsToDrop().add(inputSlot);
         }
 
@@ -358,15 +363,22 @@ public class AdvancedVacuum extends NetworkObject {
                             continue;
                         }
 
+                        final ItemStack finalPush = item.getItemStack().clone();
                         final int amount = SupportedPluginManager.getStackAmount(item);
-                        if (amount > itemStack.getMaxStackSize()) {
-                            SupportedPluginManager.setStackAmount(item, amount - itemStack.getMaxStackSize());
-                            itemStack.setAmount(itemStack.getMaxStackSize());
+                        final int maxAmount = item.getItemStack().getMaxStackSize();
+                        if (amount <= 0) {
+                            return;
+                        }
+
+                        if (amount > maxAmount) {
+                            SupportedPluginManager.setStackAmount(item, amount - maxAmount);
+                            finalPush.setAmount(maxAmount);
                         } else {
-                            itemStack.setAmount(amount);
+                            finalPush.setAmount(amount);
                             item.remove();
                         }
-                        blockMenu.replaceExistingItem(inputSlot, itemStack);
+
+                        blockMenu.replaceExistingItem(inputSlot, finalPush);
                         ParticleUtils.displayParticleRandomly(item, 1, 5, new Particle.DustOptions(Color.BLUE, 1));
                         return;
                     }

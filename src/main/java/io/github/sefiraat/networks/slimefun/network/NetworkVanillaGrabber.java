@@ -5,6 +5,7 @@ import com.balugaq.netex.api.enums.MinecraftVersion;
 import com.balugaq.netex.api.interfaces.SoftCellBannable;
 import com.balugaq.netex.utils.Lang;
 import com.bgsoftware.wildchests.api.WildChestsAPI;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.xzavier0722.mc.plugin.slimefun4.storage.util.StorageCacheUtils;
 import io.github.sefiraat.networks.NetworkStorage;
 import io.github.sefiraat.networks.Networks;
@@ -13,17 +14,15 @@ import io.github.sefiraat.networks.network.NodeType;
 import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
 import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType;
-import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
-import io.github.thebusybiscuit.slimefun4.libraries.dough.protection.Interaction;
+import io.github.thebusybiscuit.slimefun4.libraries.paperlib.PaperLib;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
-import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.BrewingStand;
 import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.Inventory;
@@ -35,8 +34,7 @@ import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.UUID;
-
+@SuppressWarnings({"DuplicatedCode", "GrazieInspection"})
 public class NetworkVanillaGrabber extends NetworkDirectional implements SoftCellBannable {
 
     private static final int[] BACKGROUND_SLOTS = new int[]{
@@ -92,6 +90,9 @@ public class NetworkVanillaGrabber extends NetworkDirectional implements SoftCel
         final BlockFace direction = getCurrentDirection(blockMenu);
         final Block block = blockMenu.getBlock();
         final Block targetBlock = block.getRelative(direction);
+
+        /* Netex - #293
+        // No longer check permission
         // Fix for early vanilla pusher release
         final String ownerUUID = StorageCacheUtils.getData(block.getLocation(), OWNER_KEY);
         if (ownerUUID == null) {
@@ -112,8 +113,14 @@ public class NetworkVanillaGrabber extends NetworkDirectional implements SoftCel
             sendFeedback(block.getLocation(), FeedbackType.ERROR_OCCURRED);
             return;
         }
+        */
+        // Netex start - #287
+        if (StorageCacheUtils.getMenu(targetBlock.getLocation()) != null) {
+            return;
+        }
+        // Netex end - #287
 
-        final BlockState blockState = targetBlock.getState();
+        final BlockState blockState = PaperLib.getBlockState(targetBlock, false).getState();
 
         if (!(blockState instanceof InventoryHolder holder)) {
             sendFeedback(block.getLocation(), FeedbackType.NO_INVENTORY_FOUND);
@@ -127,12 +134,12 @@ public class NetworkVanillaGrabber extends NetworkDirectional implements SoftCel
         sendDebugMessage(block.getLocation(), String.format(Lang.getString("messages.debug.ischest"), isChest));
 
         if (wildChests && isChest) {
-            sendDebugMessage(block.getLocation(), Lang.getString("messages.debug.wildchests-test-failed"));
+            sendDebugMessage(block.getLocation(), Lang.getString("messages.debug.wildchests-trigger-failed"));
             sendFeedback(block.getLocation(), FeedbackType.PROTECTED_BLOCK);
             return;
         }
 
-        sendDebugMessage(block.getLocation(), Lang.getString("messages.debug.wildchests-test-success"));
+        sendDebugMessage(block.getLocation(), Lang.getString("messages.debug.wildchests-trigger-success"));
         final Inventory inventory = holder.getInventory();
 
         if (inventory instanceof FurnaceInventory furnaceInventory) {
@@ -145,12 +152,15 @@ public class NetworkVanillaGrabber extends NetworkDirectional implements SoftCel
             }
 
         } else if (inventory instanceof BrewerInventory brewerInventory) {
+            if (!(blockState instanceof BrewingStand brewingStand)) return;
+            if (brewingStand.getBrewingTime() > 0) return;
+
             for (int i = 0; i < 3; i++) {
                 final ItemStack stack = brewerInventory.getContents()[i];
-                if (stack != null && stack.getType() == Material.POTION) {
+                if (stack != null && stack.getType() != Material.AIR) {
                     final PotionMeta potionMeta = (PotionMeta) stack.getItemMeta();
                     if (Networks.getInstance().getMCVersion().isAtLeast(MinecraftVersion.MC1_20_5)) {
-                        if (potionMeta.getBasePotionType() == PotionType.WATER) {
+                        if (potionMeta.getBasePotionType() != PotionType.WATER) {
                             grabItem(blockMenu, stack);
                         }
                     } else {

@@ -143,16 +143,12 @@ public class StackUtils {
             return false;
         }
 
-        if (Tag.SHULKER_BOXES.isTagged(itemStack.getType())) {
-            return false;
-        }
-
-        if (itemStack.getType() == Material.BUNDLE) {
-            return false;
-        }
-
         // If amounts do not match, then the items cannot possibly match
         if (checkAmount && itemStack.getAmount() > cache.getItemStack().getAmount()) {
+            return false;
+        }
+
+        if (isBlacklisted(itemStack) || isBlacklisted(cache.getItemStack())) {
             return false;
         }
 
@@ -182,19 +178,6 @@ public class StackUtils {
         // Has a display name (checking the name occurs later)
         if (itemMeta.hasDisplayName() != cachedMeta.hasDisplayName()) {
             return false;
-        }
-
-        if (checkCustomModelId) {
-            // Custom model data is different, no match
-            final boolean hasCustomOne = itemMeta.hasCustomModelData();
-            final boolean hasCustomTwo = cachedMeta.hasCustomModelData();
-            if (hasCustomOne) {
-                if (!hasCustomTwo || itemMeta.getCustomModelData() != cachedMeta.getCustomModelData()) {
-                    return false;
-                }
-            } else if (hasCustomTwo) {
-                return false;
-            }
         }
 
         // PDCs don't match
@@ -309,7 +292,18 @@ public class StackUtils {
             return false;
         }
         if (optionalStackId1.isPresent()) {
-            return optionalStackId1.get().equals(optionalStackId2.get());
+            if (optionalStackId1.get().equals(optionalStackId2.get())) {
+                if (checkCustomModelId) {
+                    // Custom model data is different, no match
+                    final boolean hasCustomOne = itemMeta.hasCustomModelData();
+                    final boolean hasCustomTwo = cachedMeta.hasCustomModelData();
+                    if (hasCustomOne) {
+                        return hasCustomTwo && itemMeta.getCustomModelData() == cachedMeta.getCustomModelData();
+                    } else return !hasCustomTwo;
+                }
+                return true;
+            }
+            return false;
         }
 
         // Check the display name
@@ -404,6 +398,9 @@ public class StackUtils {
 
         // Bundle
         if (metaOne instanceof BundleMeta instanceOne && metaTwo instanceof BundleMeta instanceTwo) {
+            // Patch start - No bundle allowed
+            if (true) return false;
+            // Patch end - No bundle allowed
             if (instanceOne.hasItems() != instanceTwo.hasItems()) {
                 return true;
             }
@@ -645,5 +642,12 @@ public class StackUtils {
             return System.currentTimeMillis() < cooldownUntil;
         }
         return false;
+    }
+
+    public static boolean isBlacklisted(@NotNull ItemStack itemStack) {
+        return itemStack.getType() == Material.AIR
+            || itemStack.getType().getMaxDurability() < 0
+            || Tag.SHULKER_BOXES.isTagged(itemStack.getType())
+            || itemStack.getType() == Material.BUNDLE;
     }
 }

@@ -2,6 +2,7 @@ package com.ytdd9527.networksexpansion.core.items.machines;
 
 import com.balugaq.netex.api.enums.FeedbackType;
 import com.balugaq.netex.api.helpers.Icon;
+import com.balugaq.netex.api.interfaces.CraftTyped;
 import com.balugaq.netex.api.interfaces.SoftCellBannable;
 import com.balugaq.netex.utils.BlockMenuUtil;
 import com.xzavier0722.mc.plugin.slimefun4.storage.controller.SlimefunBlockData;
@@ -21,6 +22,7 @@ import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
 import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
+import io.github.thebusybiscuit.slimefun4.libraries.dough.collections.Pair;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.protection.Interaction;
 import me.mrCookieSlime.Slimefun.Objects.handlers.BlockTicker;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
@@ -41,7 +43,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-public abstract class AbstractAdvancedAutoCrafter extends NetworkObject implements SoftCellBannable {
+@SuppressWarnings("DuplicatedCode")
+public abstract class AbstractAdvancedAutoCrafter extends NetworkObject implements SoftCellBannable, CraftTyped {
     private static final int[] BACKGROUND_SLOTS = new int[]{3, 4, 5, 12, 13, 14, 21, 22, 23};
     private static final int[] BLUEPRINT_BACKGROUND = new int[]{0, 1, 2, 9, 11, 18, 19, 20};
     private static final int[] OUTPUT_BACKGROUND = new int[]{6, 7, 8, 15, 17, 24, 25, 26};
@@ -176,6 +179,7 @@ public abstract class AbstractAdvancedAutoCrafter extends NetworkObject implemen
         }
     }
 
+    @SuppressWarnings("DataFlowIssue")
     private boolean tryCraft(
         @NotNull BlockMenu blockMenu,
         @NotNull BlueprintInstance instance,
@@ -186,7 +190,7 @@ public abstract class AbstractAdvancedAutoCrafter extends NetworkObject implemen
         final ItemStack[] acutalInputs = new ItemStack[9];
 
         /* Make sure the network has the required items
-         * Needs to be revisited as matching is happening stacks 2x when I should
+         * Needs to be revisited as matching is happening stacks 2x when it should
          * only need the one
          */
 
@@ -231,17 +235,27 @@ public abstract class AbstractAdvancedAutoCrafter extends NetworkObject implemen
 
         ItemStack crafted = null;
 
-        // Go through each slimefun recipe, test and set the ItemStack if found
-        for (Map.Entry<ItemStack[], ItemStack> entry : getRecipeEntries()) {
-            if (getRecipeTester(inputs, entry.getKey())) {
-                crafted = entry.getValue().clone();
-                break;
+        var cache = AbstractAutoCrafter.RECIPE_CACHE.get(blockMenu.getLocation());
+        if (cache != null) {
+            if (testRecipe(inputs, cache.getFirstValue())) {
+                crafted = cache.getSecondValue().clone();
+            }
+        }
+
+        // Go through each slimefun recipe, test and set crafted if found
+        if (crafted == null) {
+            for (Map.Entry<ItemStack[], ItemStack> entry : getRecipeEntries()) {
+                if (testRecipe(inputs, entry.getKey())) {
+                    crafted = entry.getValue().clone();
+                    AbstractAutoCrafter.RECIPE_CACHE.put(blockMenu.getLocation(), new Pair<>(entry.getKey(), entry.getValue()));
+                    break;
+                }
             }
         }
 
         if (crafted == null && canTestVanillaRecipe()) {
             // If no slimefun recipe found, try a vanilla one
-            instance.generateVanillaRecipe(blockMenu.getLocation().getWorld());
+            instance.generateVanillaRecipe(blockMenu.getLocation().getWorld()); // if generated, nothing will happen
             if (instance.getRecipe() == null) {
                 returnItems(root, inputs, blockMenu);
                 sendDebugMessage(blockMenu.getLocation(), "No vanilla recipe found");
@@ -340,11 +354,17 @@ public abstract class AbstractAdvancedAutoCrafter extends NetworkObject implemen
         };
     }
 
-    public abstract boolean isValidBlueprint(SlimefunItem item);
+    public boolean isValidBlueprint(SlimefunItem item) {
+        return craftType().isValidBlueprint(item);
+    }
 
-    public abstract Set<Map.Entry<ItemStack[], ItemStack>> getRecipeEntries();
+    public Set<Map.Entry<ItemStack[], ItemStack>> getRecipeEntries() {
+        return craftType().getRecipeEntries();
+    }
 
-    public abstract boolean getRecipeTester(ItemStack[] inputs, ItemStack[] recipe);
+    public boolean testRecipe(ItemStack[] inputs, ItemStack[] recipe) {
+        return craftType().testRecipe(inputs, recipe);
+    }
 
     public boolean canTestVanillaRecipe() {
         return false;

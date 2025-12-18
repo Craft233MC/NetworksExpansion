@@ -42,6 +42,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
+@SuppressWarnings("DuplicatedCode")
 public class NetworkVacuum extends NetworkObject {
 
     private static final int[] INPUT_SLOTS = new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8};
@@ -114,42 +115,48 @@ public class NetworkVacuum extends NetworkObject {
             if (inSlot == null || inSlot.getType() == Material.AIR) {
                 final Location location = blockMenu.getLocation().clone().add(0.5, 0.5, 0.5);
                 final int range = this.vacuumRange.getValue();
-                Collection<Entity> items =
-                    location.getWorld().getNearbyEntities(location, range, range, range, Item.class::isInstance);
-                Optional<Entity> optionalEntity = items.stream().findFirst();
-                if (optionalEntity.isEmpty() || !(optionalEntity.get() instanceof Item item)) {
+                Collection<Item> items = location.getWorld().getNearbyEntitiesByType(Item.class, location, range, range, range);
+
+                if (items.isEmpty()) {
                     sendFeedback(blockMenu.getLocation(), FeedbackType.NO_ITEM_FOUND);
                     return;
                 }
 
-                final String ownerUUID =
-                    StorageCacheUtils.getData(blockMenu.getLocation(), NetworkDirectional.OWNER_KEY);
-                // There's no owner before... but the new ones has owner.
-                if (ownerUUID != null) {
-                    final UUID uuid = UUID.fromString(ownerUUID);
-                    final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
-                    if (!Slimefun.getProtectionManager()
-                        .hasPermission(offlinePlayer, item.getLocation(), Interaction.INTERACT_ENTITY)) {
-                        sendFeedback(blockMenu.getLocation(), FeedbackType.NO_PERMISSION);
+                for (Item item : items) {
+                    final String ownerUUID =
+                        StorageCacheUtils.getData(blockMenu.getLocation(), NetworkDirectional.OWNER_KEY);
+                    // There's no owner before... but the new ones has owner.
+                    if (ownerUUID != null) {
+                        final UUID uuid = UUID.fromString(ownerUUID);
+                        final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
+                        if (!Slimefun.getProtectionManager()
+                            .hasPermission(offlinePlayer, item.getLocation(), Interaction.INTERACT_ENTITY)) {
+                            sendFeedback(blockMenu.getLocation(), FeedbackType.NO_PERMISSION);
+                            return;
+                        }
+                    }
+
+                    if (item.getPickupDelay() <= 0 && !SlimefunUtils.hasNoPickupFlag(item)) {
+                        final ItemStack finalPush = item.getItemStack().clone();
+                        final int amount = SupportedPluginManager.getStackAmount(item);
+                        final int maxAmount = item.getItemStack().getMaxStackSize();
+                        if (amount <= 0) {
+                            return;
+                        }
+
+                        if (amount > maxAmount) {
+                            SupportedPluginManager.setStackAmount(item, amount - maxAmount);
+                            finalPush.setAmount(maxAmount);
+                        } else {
+                            finalPush.setAmount(amount);
+                            item.remove();
+                        }
+
+                        blockMenu.replaceExistingItem(inputSlot, finalPush);
+                        ParticleUtils.displayParticleRandomly(item, 1, 5, new Particle.DustOptions(Color.BLUE, 1));
                         return;
                     }
                 }
-
-                if (item.getPickupDelay() <= 0 && !SlimefunUtils.hasNoPickupFlag(item)) {
-                    final ItemStack itemStack = item.getItemStack().clone();
-                    final int amount = SupportedPluginManager.getStackAmount(item);
-                    if (amount > itemStack.getMaxStackSize()) {
-                        SupportedPluginManager.setStackAmount(item, amount - itemStack.getMaxStackSize());
-                        itemStack.setAmount(itemStack.getMaxStackSize());
-                    } else {
-                        itemStack.setAmount(amount);
-                        item.remove();
-                    }
-                    blockMenu.replaceExistingItem(inputSlot, itemStack);
-                    ParticleUtils.displayParticleRandomly(item, 1, 5, new Particle.DustOptions(Color.BLUE, 1));
-                    item.remove();
-                }
-                return;
             }
         }
         sendFeedback(blockMenu.getLocation(), FeedbackType.WORKING);

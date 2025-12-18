@@ -1,5 +1,6 @@
 package com.ytdd9527.networksexpansion.implementation.machines.managers;
 
+import com.balugaq.jeg.implementation.JustEnoughGuide;
 import com.balugaq.netex.api.algorithm.Sorters;
 import com.balugaq.netex.api.enums.FeedbackType;
 import com.balugaq.netex.api.events.NetworkRootLocateStorageEvent;
@@ -13,6 +14,7 @@ import com.ytdd9527.networksexpansion.implementation.ExpansionItems;
 import com.ytdd9527.networksexpansion.utils.ParticleUtil;
 import com.ytdd9527.networksexpansion.utils.TextUtil;
 import io.github.sefiraat.networks.NetworkStorage;
+import io.github.sefiraat.networks.Networks;
 import io.github.sefiraat.networks.network.NetworkRoot;
 import io.github.sefiraat.networks.network.NodeDefinition;
 import io.github.sefiraat.networks.network.NodeType;
@@ -38,6 +40,7 @@ import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenuPreset;
 import me.mrCookieSlime.Slimefun.api.item_transport.ItemTransportFlow;
 import net.guizhanss.guizhanlib.minecraft.helper.inventory.ItemStackHelper;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -57,7 +60,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation", "DuplicatedCode"})
 public class QuantumManager extends NetworkObject {
     public static final String MANAGER_TAG = "quantum-manager";
     public static final NetworkRootLocateStorageEvent.Strategy MANAGER_STRATEGY =
@@ -190,8 +193,12 @@ public class QuantumManager extends NetworkObject {
     }
 
     public static void highlightBlock(@NotNull Player player, @NotNull Location barrelLocation) {
-        ParticleUtil.drawLineFrom(player.getEyeLocation().clone().add(0D, -0.5D, 0D), barrelLocation);
-        ParticleUtil.highlightBlock(barrelLocation);
+        for (int i = 0; i < 10; i++) {
+            Networks.getFoliaLib().getScheduler().runLaterAsync(() -> {
+                ParticleUtil.drawLineFrom(player.getEyeLocation().clone().add(0D, -0.5D, 0D), barrelLocation);
+                ParticleUtil.highlightBlock(barrelLocation);
+            }, 20L * i);
+        }
     }
 
     public static void setItem(

@@ -67,6 +67,14 @@ public class ItemMover extends SpecialSlimefunItem implements DistinctiveItem {
         @NotNull ItemStack @NotNull [] recipe) {
         super(itemGroup, item, recipeType, recipe);
         addItemHandler((ItemUseHandler) e -> {
+            try {
+                if (this.isDisabled()) {
+                    return;
+                }
+            } catch (Exception ex) {
+                return;
+            }
+
             final Player player = e.getPlayer();
             final Optional<Block> optional = e.getClickedBlock();
             if (optional.isPresent()) {

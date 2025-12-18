@@ -45,6 +45,8 @@ import static io.github.sefiraat.networks.slimefun.NetworkSlimefunItems.NETWORK_
 import static io.github.sefiraat.networks.slimefun.NetworkSlimefunItems.NETWORK_VANILLA_GRABBER;
 import static io.github.sefiraat.networks.slimefun.NetworkSlimefunItems.NETWORK_VANILLA_PUSHER;
 import static io.github.sefiraat.networks.slimefun.NetworkSlimefunItems.NETWORK_WIRELESS_CONFIGURATOR;
+import static io.github.sefiraat.networks.slimefun.NetworkSlimefunItems.NETWORK_WIRELESS_RECEIVER;
+import static io.github.sefiraat.networks.slimefun.NetworkSlimefunItems.NETWORK_WIRELESS_TRANSMITTER;
 import static io.github.sefiraat.networks.slimefun.NetworkSlimefunItems.OPTIC_CABLE;
 import static io.github.sefiraat.networks.slimefun.NetworkSlimefunItems.OPTIC_GLASS;
 import static io.github.sefiraat.networks.slimefun.NetworkSlimefunItems.OPTIC_STAR;
@@ -54,7 +56,8 @@ import static io.github.sefiraat.networks.slimefun.NetworkSlimefunItems.SIMPLE_N
 import static io.github.sefiraat.networks.slimefun.NetworkSlimefunItems.SYNTHETIC_EMERALD_SHARD;
 
 public class ExpansionRecipes {
-    public static final ItemStack hopper = new ItemStack(Material.HOPPER);
+    public static final ItemStack HOPPER = new ItemStack(Material.HOPPER);
+    public static final ItemStack CRAFTING_TABLE = new ItemStack(Material.CRAFTING_TABLE);
 
     public static final ItemStack[] NULL = new ItemStack[]{
         null, null, null,
@@ -64,9 +67,9 @@ public class ExpansionRecipes {
 
     // Workbench
     public static final ItemStack[] NETWORKS_EXPANSION_WORKBENCH = new ItemStack[]{
-        NETWORK_BRIDGE.getItem(), SlimefunItems.ADVANCED_CIRCUIT_BOARD, NETWORK_BRIDGE.getItem(),
-        OPTIC_CABLE.getItem(), AI_CORE.getItem(), OPTIC_CABLE.getItem(),
-        NETWORK_BRIDGE.getItem(), SlimefunItems.ADVANCED_CIRCUIT_BOARD, NETWORK_BRIDGE.getItem()
+        OPTIC_GLASS.getItem(), OPTIC_GLASS.getItem(), OPTIC_GLASS.getItem(),
+        OPTIC_GLASS.getItem(), CRAFTING_TABLE, OPTIC_GLASS.getItem(),
+        OPTIC_GLASS.getItem(), OPTIC_GLASS.getItem(), OPTIC_GLASS.getItem()
     };
 
     // Line Transfers
@@ -1590,19 +1593,19 @@ public class ExpansionRecipes {
     };
 
     public static final ItemStack[] DUE_MACHINE = new ItemStack[]{
-        ExpansionItemStacks.NETWORK_INPUT_ONLY_MONITOR,
-        NETWORK_EXPORT.getItem(),
-        ExpansionItemStacks.NETWORK_OUTPUT_ONLY_MONITOR,
-        NETWORK_IMPORT.getItem(),
-        RADIOACTIVE_OPTIC_STAR.getItem(),
-        NETWORK_IMPORT.getItem(),
-        ExpansionItemStacks.NETWORK_OUTPUT_ONLY_MONITOR,
-        NETWORK_EXPORT.getItem(),
-        ExpansionItemStacks.NETWORK_INPUT_ONLY_MONITOR
+        NETWORK_PUSHER.getItem(),
+        NETWORK_GRABBER.getItem(),
+        NETWORK_PUSHER.getItem(),
+        NETWORK_GRABBER.getItem(),
+        NETWORK_BRIDGE.getItem(),
+        NETWORK_GRABBER.getItem(),
+        NETWORK_PUSHER.getItem(),
+        NETWORK_GRABBER.getItem(),
+        NETWORK_PUSHER.getItem()
     };
 
     public static final ItemStack[] OFFSETTER = new ItemStack[]{
-        null, OPTIC_CABLE.getItem(), null, hopper, NETWORK_MONITOR.getItem(), hopper, null, OPTIC_CABLE.getItem(), null
+        null, OPTIC_CABLE.getItem(), null, HOPPER, NETWORK_MONITOR.getItem(), HOPPER, null, OPTIC_CABLE.getItem(), null
     };
 
     @Deprecated
@@ -1687,5 +1690,17 @@ public class ExpansionRecipes {
         OPTIC_STAR.getItem(), ExpansionItemStacks.WHITELISTED_TRANSFER_VANILLA_GRABBER, OPTIC_STAR.getItem(),
         ExpansionItemStacks.WHITELISTED_TRANSFER_VANILLA_GRABBER, NETWORK_GRABBER.getItem(), ExpansionItemStacks.WHITELISTED_TRANSFER_VANILLA_GRABBER,
         OPTIC_STAR.getItem(), ExpansionItemStacks.WHITELISTED_TRANSFER_VANILLA_GRABBER, OPTIC_STAR.getItem()
+    };
+
+    public static final ItemStack[] SMART_NETWORK_CRAFTING_GRID_NEW_STYLE = new ItemStack[]{
+        NETWORK_BRIDGE.getItem(), NETWORK_BRIDGE.getItem(), NETWORK_BRIDGE.getItem(),
+        NETWORK_BRIDGE.getItem(), ExpansionItemStacks.NETWORK_CRAFTING_GRID_NEW_STYLE, NETWORK_BRIDGE.getItem(),
+        NETWORK_BRIDGE.getItem(), NETWORK_BRIDGE.getItem(), NETWORK_BRIDGE.getItem()
+    };
+
+    public static final ItemStack[] ADVANCED_WIRELESS_TRANSMITTER = new ItemStack[]{
+        NETWORK_BRIDGE.getItem(), NETWORK_WIRELESS_TRANSMITTER.getItem(), NETWORK_BRIDGE.getItem(),
+        NETWORK_WIRELESS_RECEIVER.getItem(), NETWORK_WIRELESS_TRANSMITTER.getItem(), NETWORK_WIRELESS_RECEIVER.getItem(),
+        NETWORK_BRIDGE.getItem(), NETWORK_WIRELESS_TRANSMITTER.getItem(), NETWORK_BRIDGE.getItem()
     };
 }

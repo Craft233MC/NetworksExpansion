@@ -1,5 +1,6 @@
 package com.ytdd9527.networksexpansion.implementation.machines.managers;
 
+import com.balugaq.jeg.implementation.JustEnoughGuide;
 import com.balugaq.netex.api.algorithm.Sorters;
 import com.balugaq.netex.api.data.ItemContainer;
 import com.balugaq.netex.api.data.StorageUnitData;
@@ -15,6 +16,7 @@ import com.ytdd9527.networksexpansion.implementation.ExpansionItems;
 import com.ytdd9527.networksexpansion.utils.ParticleUtil;
 import com.ytdd9527.networksexpansion.utils.TextUtil;
 import io.github.sefiraat.networks.NetworkStorage;
+import io.github.sefiraat.networks.Networks;
 import io.github.sefiraat.networks.network.NetworkRoot;
 import io.github.sefiraat.networks.network.NodeDefinition;
 import io.github.sefiraat.networks.network.NodeType;
@@ -37,6 +39,7 @@ import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenuPreset;
 import me.mrCookieSlime.Slimefun.api.item_transport.ItemTransportFlow;
 import net.guizhanss.guizhanlib.minecraft.helper.inventory.ItemStackHelper;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -56,6 +59,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
+@SuppressWarnings("DuplicatedCode")
 public class DrawerManager extends NetworkObject {
     public static final String MANAGER_TAG = "drawer_manager";
     public static final NetworkRootLocateStorageEvent.Strategy MANAGER_STRATEGY =
@@ -187,9 +191,13 @@ public class DrawerManager extends NetworkObject {
         return top != null && top.equals(BS_TOP_1B);
     }
 
-    public static void highlightBlock(@NotNull Player player, @NotNull Location dataLocation) {
-        ParticleUtil.drawLineFrom(player.getEyeLocation().clone().add(0D, -0.5D, 0D), dataLocation);
-        ParticleUtil.highlightBlock(dataLocation);
+    public static void highlightBlock(@NotNull Player player, @NotNull Location barrelLocation) {
+        for (int i = 0; i < 10; i++) {
+            Networks.getFoliaLib().getScheduler().runLaterAsync(() -> {
+                ParticleUtil.drawLineFrom(player.getEyeLocation().clone().add(0D, -0.5D, 0D), barrelLocation);
+                ParticleUtil.highlightBlock(barrelLocation);
+            }, 20L * i);
+        }
     }
 
     public static void openMenu(@NotNull StorageUnitData data, @NotNull Player player) {

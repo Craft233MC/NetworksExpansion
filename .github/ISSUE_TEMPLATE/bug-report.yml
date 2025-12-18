@@ -2,7 +2,6 @@ name: Bug汇报
 description: 反馈本插件的Bug或问题
 labels: [ "bug" ]
 assignees:
-  - ytdd9527
   - balugaq
 body:
   - type: markdown
@@ -88,7 +87,6 @@ body:
       label: 服务端软件
       description: 请选择你服务端所使用的软件
       options:
-        - Spigot
         - Paper
         - Purpur
         - Airplane

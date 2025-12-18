@@ -5,7 +5,7 @@ import com.balugaq.netex.api.data.StorageUnitData;
 import com.balugaq.netex.api.enums.QuickTransferMode;
 import com.balugaq.netex.api.enums.StorageUnitType;
 import com.balugaq.netex.api.helpers.Icon;
-import com.balugaq.netex.api.interfaces.ModelledItem;
+import com.balugaq.netex.api.interfaces.ModellableItem;
 import com.balugaq.netex.utils.InventoryUtil;
 import com.balugaq.netex.utils.Lang;
 import com.jeff_media.morepersistentdatatypes.DataType;
@@ -68,8 +68,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
-@SuppressWarnings("deprecation")
-public class NetworksDrawer extends SpecialSlimefunItem implements DistinctiveItem, ModelledItem {
+@SuppressWarnings({"deprecation", "DuplicatedCode"})
+public class NetworksDrawer extends SpecialSlimefunItem implements DistinctiveItem, ModellableItem {
     private static final boolean DEFAULT_USE_SPECIAL_MODEL = false;
     private static final Map<Location, StorageUnitData> storages = new HashMap<>();
     private static final Map<Location, QuickTransferMode> quickTransferModes = new HashMap<>();
@@ -413,6 +413,10 @@ public class NetworksDrawer extends SpecialSlimefunItem implements DistinctiveIt
         for (int s : DISPLAY_SLOTS) {
             blockMenu.addMenuClickHandler(s, (player, slot, clickItem, action) -> {
                 final ItemStack itemOnCursor = player.getItemOnCursor();
+                if (itemOnCursor != null && itemOnCursor.getType() != Material.AIR && StackUtils.isBlacklisted(itemOnCursor)) {
+                    return false;
+                }
+
                 if (StackUtils.itemsMatch(clickItem, Icon.ERROR_BORDER)) {
                     if (itemOnCursor.getType() != Material.AIR) {
                         data.depositItemStack0(l, itemOnCursor, false, true);

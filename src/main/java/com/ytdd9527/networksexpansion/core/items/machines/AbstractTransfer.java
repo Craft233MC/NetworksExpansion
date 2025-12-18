@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("DuplicatedCode")
 public abstract class AbstractTransfer extends AdvancedDirectional implements RecipeDisplayItem {
     private static final Map<Location, Integer> PUSH_TICKER_MAP = new HashMap<>();
     private static final Map<Location, Integer> GRAB_TICKER_MAP = new HashMap<>();
@@ -44,7 +45,17 @@ public abstract class AbstractTransfer extends AdvancedDirectional implements Re
         @NotNull ItemGroup itemGroup,
         @NotNull SlimefunItemStack item,
         @NotNull RecipeType recipeType,
+        ItemStack @NotNull [] recipe,
+        NodeType type) {
+        this(itemGroup, item, recipeType, recipe, 1, type);
+    }
+
+    protected AbstractTransfer(
+        @NotNull ItemGroup itemGroup,
+        @NotNull SlimefunItemStack item,
+        @NotNull RecipeType recipeType,
         ItemStack[] recipe,
+        int outputAmount,
         NodeType type) {
         super(itemGroup, item, recipeType, recipe, type);
         this.config = TransferConfigFactory.getTransferConfiguration(getTransferType(), checkPlus(item.getItemId()));

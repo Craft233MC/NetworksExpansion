@@ -1,5 +1,6 @@
 package io.github.sefiraat.networks.commands;
 
+import com.balugaq.netex.api.algorithm.Calculator;
 import com.balugaq.netex.api.data.ItemContainer;
 import com.balugaq.netex.api.data.StorageUnitData;
 import com.balugaq.netex.api.enums.ErrorType;
@@ -35,6 +36,7 @@ import io.github.thebusybiscuit.slimefun4.core.handlers.BlockBreakHandler;
 import io.github.thebusybiscuit.slimefun4.core.handlers.BlockPlaceHandler;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.blocks.ChunkPosition;
+import io.github.thebusybiscuit.slimefun4.libraries.paperlib.PaperLib;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import net.guizhanss.guizhanlib.minecraft.helper.inventory.ItemStackHelper;
 import org.bukkit.Bukkit;
@@ -75,7 +77,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation", "DuplicatedCode"})
 public class NetworksMain implements TabExecutor {
     @Deprecated
     private static final Set<UUID> requesters = new ConcurrentSkipListSet<>();
@@ -504,7 +506,7 @@ public class NetworksMain implements TabExecutor {
                 final Location toLocation = toBlock.getLocation();
 
                 // Block Data
-                WorldUtils.copyBlockState(fromBlock.getState(), toBlock);
+                WorldUtils.copyBlockState(PaperLib.getBlockState(fromBlock, false).getState(), toBlock);
 
                 // Count means successful pasting block data. Not including Slimefun data.
                 count.addAndGet(1);
@@ -519,7 +521,7 @@ public class NetworksMain implements TabExecutor {
                     BlockPlaceHandler.class,
                     handler -> handler.onPlayerPlace(new BlockPlaceEvent(
                         toBlock,
-                        toBlock.getState(),
+                        PaperLib.getBlockState(toBlock, false).getState(),
                         toBlock.getRelative(BlockFace.SOUTH),
                         itemInHand,
                         player,
@@ -665,7 +667,7 @@ public class NetworksMain implements TabExecutor {
                 BlockPlaceHandler.class,
                 h -> h.onPlayerPlace(new BlockPlaceEvent(
                     targetBlock,
-                    targetBlock.getState(),
+                    PaperLib.getBlockState(targetBlock, false).getState(),
                     targetBlock.getRelative(BlockFace.DOWN),
                     itemStack,
                     player,
@@ -1073,10 +1075,11 @@ public class NetworksMain implements TabExecutor {
                     }
 
                     try {
-                        int amount = Integer.parseInt(args[1]);
+                        int amount = Calculator.calculate(args[1]).intValue();
                         fillQuantum(player, amount);
                     } catch (NumberFormatException e) {
                         player.sendMessage(getErrorMessage(ErrorType.INVALID_REQUIRED_ARGUMENT, "amount"));
+                        player.sendMessage(e.getMessage());
                     }
 
                     return true;
@@ -1112,10 +1115,11 @@ public class NetworksMain implements TabExecutor {
                     }
 
                     try {
-                        int amount = Integer.parseInt(args[1]);
+                        int amount = Calculator.calculate(args[1]).intValue();
                         setQuantum(player, amount);
                     } catch (NumberFormatException e) {
                         player.sendMessage(getErrorMessage(ErrorType.INVALID_REQUIRED_ARGUMENT, "amount"));
+                        player.sendMessage(e.getMessage());
                     }
 
                     return true;
@@ -1133,10 +1137,11 @@ public class NetworksMain implements TabExecutor {
                     }
 
                     try {
-                        int amount = Integer.parseInt(args[1]);
+                        int amount = Calculator.calculate(args[1]).intValue();
                         addStorageItem(player, amount);
                     } catch (NumberFormatException e) {
                         player.sendMessage(getErrorMessage(ErrorType.INVALID_REQUIRED_ARGUMENT, "amount"));
+                        player.sendMessage(e.getMessage());
                     }
 
                     return true;
@@ -1155,10 +1160,11 @@ public class NetworksMain implements TabExecutor {
                     }
 
                     try {
-                        int amount = Integer.parseInt(args[1]);
+                        int amount = Calculator.calculate(args[1]).intValue();
                         reduceStorageItem(player, amount);
                     } catch (NumberFormatException e) {
                         player.sendMessage(getErrorMessage(ErrorType.INVALID_REQUIRED_ARGUMENT, "amount"));
+                        player.sendMessage(e.getMessage());
                     }
 
                     return true;
@@ -1177,10 +1183,11 @@ public class NetworksMain implements TabExecutor {
                     }
 
                     try {
-                        int containerId = Integer.parseInt(args[1]);
+                        int containerId = Calculator.calculate(args[1]).intValue();
                         setContainerId(player, containerId);
                     } catch (NumberFormatException e) {
                         player.sendMessage(getErrorMessage(ErrorType.INVALID_REQUIRED_ARGUMENT, "containerId"));
+                        player.sendMessage(e.getMessage());
                     }
 
                     return true;
@@ -1271,10 +1278,11 @@ public class NetworksMain implements TabExecutor {
                                 }
 
                                 try {
-                                    int slot = Integer.parseInt(args[3]);
+                                    int slot = Calculator.calculate(args[3]).intValue();
                                     worldeditBlockMenuSetSlot(player, slot);
                                 } catch (NumberFormatException e) {
                                     player.sendMessage(getErrorMessage(ErrorType.INVALID_REQUIRED_ARGUMENT, "slot"));
+                                    player.sendMessage(e.getMessage());
                                 }
                             } else {
                                 player.sendMessage(getErrorMessage(ErrorType.MISSING_REQUIRED_ARGUMENT, "subCommand"));
@@ -1362,10 +1370,11 @@ public class NetworksMain implements TabExecutor {
                     }
 
                     try {
-                        int slot = Integer.parseInt(args[1]);
+                        int slot = Calculator.calculate(args[1]).intValue();
                         getStorageItem(player, slot);
                     } catch (NumberFormatException e) {
                         player.sendMessage(getErrorMessage(ErrorType.INVALID_REQUIRED_ARGUMENT, "slot"));
+                        player.sendMessage(e.getMessage());
                     }
 
                     return true;

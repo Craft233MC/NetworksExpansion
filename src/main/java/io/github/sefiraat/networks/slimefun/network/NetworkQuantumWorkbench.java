@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("DuplicatedCode")
 public class NetworkQuantumWorkbench extends SpecialSlimefunItem {
 
     private static final int[] BACKGROUND_SLOTS = {
@@ -115,7 +116,7 @@ public class NetworkQuantumWorkbench extends SpecialSlimefunItem {
 
         ItemStack crafted = null;
 
-        // Go through each recipe, test and set the ItemStack if found
+        // Go through each recipe, trigger and set the ItemStack if found
         for (Map.Entry<ItemStack[], ItemStack> entry : RECIPES.entrySet()) {
             if (testRecipe(inputs, entry.getKey())) {
                 crafted = entry.getValue().clone();

@@ -1,7 +1,10 @@
 package io.github.sefiraat.networks;
 
+import com.balugaq.netex.api.algorithm.ID;
 import com.balugaq.netex.api.data.ItemFlowRecord;
 import com.balugaq.netex.api.enums.MinecraftVersion;
+import com.balugaq.netex.api.keybind.Keybinds;
+import com.balugaq.netex.core.guide.GridNewStyleCustomAmountGuideOption;
 import com.balugaq.netex.utils.Debug;
 import com.tcoded.folialib.FoliaLib;
 import com.tcoded.folialib.wrapper.task.WrappedTask;
@@ -23,13 +26,13 @@ import io.github.sefiraat.networks.slimefun.network.AdminDebuggable;
 import io.github.sefiraat.networks.slimefun.network.NetworkController;
 import io.github.sefiraat.networks.utils.NetworkUtils;
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
+import io.github.thebusybiscuit.slimefun4.core.guide.options.SlimefunGuideSettings;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.libraries.paperlib.PaperLib;
 import lombok.Getter;
 import net.guizhanss.guizhanlibplugin.updater.GuizhanUpdater;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.AdvancedPie;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.PluginManager;
@@ -213,14 +216,24 @@ public class Networks extends JavaPlugin implements SlimefunAddon {
                         Slimefun.getTickerTask().getTickRate());
 
         AdminDebuggable.load();
+        SlimefunGuideSettings.addOption(GridNewStyleCustomAmountGuideOption.instance());
+        Networks.getFoliaLib().getScheduler().runLaterAsync(Keybinds::distinctAll, 1L);
+        ID.fetchId();
+        Keybinds.fetchScripts();
         getLogger().info(getLocalizationService().getString("messages.startup.enabled-successfully"));
     }
 
     @Override
     public void onDisable() {
-        getLogger().info(getLocalizationService().getString("messages.shutdown.saving-config"));
-        this.configManager.saveAll();
-        getLogger().info(getLocalizationService().getString("messages.shutdown.disconnecting-database"));
+        try {
+            getLogger().info(getLocalizationService().getString("messages.shutdown.saving-config"));
+            ID.saveId();
+            this.configManager.saveAll();
+            getLogger().info(getLocalizationService().getString("messages.shutdown.disconnecting-database"));
+        } catch (Exception e) {
+            Debug.trace(e);
+        }
+
         if (autoSaveThread != null) {
             getFoliaLib().getScheduler().cancelTask(autoSaveThreadTask);
         }
