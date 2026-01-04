@@ -422,13 +422,17 @@ public class NetworksDrawer extends SpecialSlimefunItem implements DistinctiveIt
                         data.depositItemStack0(l, itemOnCursor, false, true);
                     }
                 } else {
-                    List<Integer> a = new ArrayList<>();
+                    List<Integer> display = new ArrayList<>();
                     for (int i : DISPLAY_SLOTS) {
-                        a.add(i);
+                        display.add(i);
                     }
-                    int index = a.indexOf(slot);
-                    final ItemStack take =
-                        storages.get(l).getStoredItems().get(index).getSampleDirectly();
+                    int index = display.indexOf(slot);
+                    final var stored = storages.get(l).getStoredItems();
+                    if (stored.size() <= index) {
+                        return false;
+                    }
+
+                    final ItemStack take = stored.get(index).getSampleDirectly();
 
                     final ItemRequest itemRequest = new ItemRequest(take, 1);
 
@@ -565,7 +569,7 @@ public class NetworksDrawer extends SpecialSlimefunItem implements DistinctiveIt
                         case FROM_QUANTUM -> {
                             if (quantumCache == null
                                 || quantumCache.getItemStack() == null
-                                || quantumCache.getAmount() <= 0) {
+                                || quantumCache.getAmountLong() <= 0) {
                                 player.sendMessage(Lang.getString(
                                     "messages.unsupported-operation.drawer.invalid_quantum_storage"));
                                 return;
@@ -575,7 +579,7 @@ public class NetworksDrawer extends SpecialSlimefunItem implements DistinctiveIt
                                     "messages.unsupported-operation.drawer.quantum_storage_item_mismatch"));
                                 return;
                             }
-                            final long quantumAmount = quantumCache.getAmount();
+                            final long quantumAmount = quantumCache.getAmountLong();
                             final int canAdd = (int) Math.min(
                                 quantumAmount, thisStorage.getSizeType().getEachMaxSize() - each.getAmount());
                             if (canAdd <= 0) {
@@ -613,10 +617,16 @@ public class NetworksDrawer extends SpecialSlimefunItem implements DistinctiveIt
 
                             if (quantumCache == null) {
                                 final NetworkQuantumStorage nqs = (NetworkQuantumStorage) slimefunItem;
-                                final int quantumLimit = nqs.getMaxAmount();
+                                final long quantumLimit = nqs.getMaxAmount();
 
                                 final int unitAmount = each.getAmount();
-                                final int canAdd = Math.min(unitAmount, quantumLimit);
+                                final long canAddr = Math.min(unitAmount, quantumLimit);
+                                int canAdd;
+                                if (canAddr > Integer.MAX_VALUE) {
+                                    canAdd = Integer.MAX_VALUE;
+                                } else {
+                                    canAdd = (int) canAddr;
+                                }
                                 if (canAdd <= 0) {
                                     player.sendMessage(Lang.getString(
                                         "messages.unsupported-operation.drawer.each_not_enough_item"));
@@ -640,10 +650,10 @@ public class NetworksDrawer extends SpecialSlimefunItem implements DistinctiveIt
                                     "messages.completed-operation.drawer.transferred_to_quantum_storage"));
                                 return;
                             } else if (StackUtils.itemsMatch(quantumCache.getItemStack(), sample)) {
-                                final int quantumLimit = quantumCache.getLimit();
-                                final int quantumAmount = (int) quantumCache.getAmount();
+                                final long quantumLimit = quantumCache.getLimitLong();
+                                final int quantumAmount = (int) quantumCache.getAmountLong();
                                 final int unitAmount = each.getAmount();
-                                final int canAdd = Math.min(unitAmount, quantumLimit - quantumAmount);
+                                final int canAdd = Math.toIntExact(Math.min(unitAmount, quantumLimit - quantumAmount));
                                 if (canAdd <= 0) {
                                     player.sendMessage(Lang.getString(
                                         "messages.unsupported-operation.drawer.each_not_enough_item"));

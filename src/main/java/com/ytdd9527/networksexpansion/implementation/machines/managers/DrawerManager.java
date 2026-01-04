@@ -191,15 +191,6 @@ public class DrawerManager extends NetworkObject {
         return top != null && top.equals(BS_TOP_1B);
     }
 
-    public static void highlightBlock(@NotNull Player player, @NotNull Location barrelLocation) {
-        for (int i = 0; i < 10; i++) {
-            Networks.getFoliaLib().getScheduler().runLaterAsync(() -> {
-                ParticleUtil.drawLineFrom(player.getEyeLocation().clone().add(0D, -0.5D, 0D), barrelLocation);
-                ParticleUtil.highlightBlock(barrelLocation);
-            }, 20L * i);
-        }
-    }
-
     public static void openMenu(@NotNull StorageUnitData data, @NotNull Player player) {
         BlockMenu menu = StorageCacheUtils.getMenu(data.getLastLocation());
         if (menu == null) {
@@ -290,7 +281,7 @@ public class DrawerManager extends NetworkObject {
                     setStorageIcon(player, dataLocation, cursor);
                 }
             } else {
-                highlightBlock(player, dataLocation);
+                ParticleUtil.highlightBlock(player, dataLocation, 10);
             }
         }
     }
